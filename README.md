@@ -11,7 +11,7 @@ It has a lot of nice features but the most important thing is that you can easil
 
 Examples:
 
-**GET Request: **
+**GET Request:**
 
 ``` java
 AbstractRequestProcessor requestProcessor = new HttpRequestProcessor(urlString);
