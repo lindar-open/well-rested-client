@@ -38,14 +38,14 @@ MyObject myObj = new MyObject();
 ResponseVO serverResponse = requestProcessor.processPostRequest(myObj);
 ```
 
-**How to post an xml string directly: **
+**How to post an xml string directly:**
 
 ``` java
 AbstractRequestProcessor requestProcessor = new HttpRequestProcessor(urlString);
 ResponseVO serverResponse = requestProcessor.processPostRequest(xmlString, ContentType.APPLICATION_XML);
 ```
 
-**How to post a json string directly using HTTPS: **
+**How to post a json string directly using HTTPS:**
 
 ``` java
 AbstractRequestProcessor requestProcessor = new HttpsRequestProcessor(urlString);
