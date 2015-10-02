@@ -23,7 +23,7 @@ The ResponseVO class contains the status code returned by the server and the ser
 
 **POST Request:**
 
-How to post a json string directly: 
+**How to post a json string directly:** 
 
 ``` java
 AbstractRequestProcessor requestProcessor = new HttpRequestProcessor(urlString);
