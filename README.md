@@ -13,8 +13,10 @@ Examples:
 
 GET Request: 
 
+``` java
 AbstractRequestProcessor requestProcessor = new HttpRequestProcessor(urlString);
 ResponseVO serverResponse = requestProcessor.processGetRequest();
+```
 
 The ResponseVO class contains the status code returned by the server and the server response returned as String.
 
@@ -23,25 +25,32 @@ POST Request:
 
 How to post a json string directly: 
 
+``` java
 AbstractRequestProcessor requestProcessor = new HttpRequestProcessor(urlString);
 ResponseVO serverResponse = requestProcessor.processPostRequest(jsonString);
+```
 
 How to post an object as json:
 
+``` java
 AbstractRequestProcessor requestProcessor = new HttpRequestProcessor(urlString);
 MyObject myObj = new MyObject();
 ResponseVO serverResponse = requestProcessor.processPostRequest(myObj);
+```
 
 How to post an xml string directly: 
 
+``` java
 AbstractRequestProcessor requestProcessor = new HttpRequestProcessor(urlString);
 ResponseVO serverResponse = requestProcessor.processPostRequest(xmlString, ContentType.APPLICATION_XML);
-
+```
 
 How to post a json string directly using HTTPS: 
 
+``` java
 AbstractRequestProcessor requestProcessor = new HttpsRequestProcessor(urlString);
 ResponseVO serverResponse = requestProcessor.processPostRequest(jsonString);
+```
 
 Yes, that's right, exactly the same, you just change from HttpRequestProcessor to HttpsRequestProcessor 
 
