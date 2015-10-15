@@ -77,8 +77,7 @@ public class HttpRequestProcessor extends AbstractRequestProcessor {
     public ResponseVO processPostRequest(HttpEntity entity, List<Header> headers) {
         return processPostRequestWithCredentials(entity, headers, null);
     }
-    
-    
+
     @Override
     public ResponseVO processPostRequest(String content, ContentType contentType) {
         return processPostRequest(content, contentType, null);
@@ -123,7 +122,6 @@ public class HttpRequestProcessor extends AbstractRequestProcessor {
         return processPostRequest(httpEntity);
     }
 
-
     @Override
     public ResponseVO processPostRequestWithCredentials(HttpEntity entity, List<Header> headers, Credentials credentials) {
         URI uri = URI.create(this.url);
@@ -166,11 +164,20 @@ public class HttpRequestProcessor extends AbstractRequestProcessor {
             httpClient = HttpClientBuilder.create().build();
         }
 
+        HttpClientContext context = HttpClientContext.create();
+
         httpRequest.addHeader("User-Agent", USER_AGENT);
         headers.stream().forEach((header) -> {
             httpRequest.addHeader(header);
         });
-        return executeRequest(() -> httpClient.execute(httpRequest));
+        ResponseVO responseVO = executeRequest(() -> httpClient.execute(httpRequest, context));
+
+        List<URI> redirectURIs = context.getRedirectLocations();
+        if (redirectURIs != null && !redirectURIs.isEmpty()) {
+            URI finalURI = redirectURIs.get(redirectURIs.size() - 1);
+            responseVO.setCurrentURI(finalURI.toString());
+        }
+        return responseVO;
     }
 
     private ResponseVO executeRequest(HttpClientExecutor httpClientExecutor) {

@@ -202,14 +202,21 @@ public class HttpsRequestProcessor extends AbstractRequestProcessor {
         }
 
         HttpClient httpClient = cb.build();
+        
+        HttpClientContext context = HttpClientContext.create();
 
-        //HttpClient httpClient = HttpClientBuilder.create().build();
         httpRequest.addHeader("User-Agent", USER_AGENT);
 
         headers.stream().forEach((header) -> {
             httpRequest.addHeader(header);
         });
-        return executeRequest(() -> httpClient.execute(httpRequest));
+        ResponseVO responseVO = executeRequest(() -> httpClient.execute(httpRequest, context));
+        List<URI> redirectURIs = context.getRedirectLocations();
+        if (redirectURIs != null && !redirectURIs.isEmpty()) {
+            URI finalURI = redirectURIs.get(redirectURIs.size() - 1);
+            responseVO.setCurrentURI(finalURI.toString());
+        }
+        return responseVO;
     }
 
     private ResponseVO executeRequest(HttpClientExecutor httpClientExecutor) {
@@ -220,7 +227,7 @@ public class HttpsRequestProcessor extends AbstractRequestProcessor {
         }
         return new ResponseVO();
     }
-    
+
     private SSLContext createTrustManagerAndReturnSslContext() {
         try {
             // Create a trust manager that does not validate certificate chains

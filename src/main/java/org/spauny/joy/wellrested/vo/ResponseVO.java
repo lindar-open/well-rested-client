@@ -10,4 +10,5 @@ public class ResponseVO implements Serializable {
 
     private String serverResponse = StringUtils.EMPTY;
     private int statusCode;
+    private String currentURI;
 }
