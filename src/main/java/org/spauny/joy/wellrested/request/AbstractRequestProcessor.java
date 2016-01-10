@@ -12,6 +12,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.http.Header;
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpResponse;
+import org.apache.http.NameValuePair;
 import org.apache.http.auth.Credentials;
 import org.apache.http.entity.ContentType;
 import org.apache.http.message.BasicHeader;
@@ -165,4 +166,8 @@ public abstract class AbstractRequestProcessor {
     protected List<Header> createHttpHeadersFromMap(Map<String, String> headers) {
         return headers.entrySet().stream().map(entry -> new BasicHeader(entry.getKey(), entry.getValue())).collect(Collectors.toList());
     }
+
+    public abstract ResponseVO processPostRequest(List<NameValuePair> formParams);
+
+    public abstract ResponseVO processPostRequest(List<NameValuePair> formParams, Map<String, String> headers);
 }

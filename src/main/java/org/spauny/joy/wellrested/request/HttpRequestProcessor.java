@@ -2,6 +2,7 @@ package org.spauny.joy.wellrested.request;
 
 import com.google.common.collect.Lists;
 import com.google.gson.Gson;
+import java.io.UnsupportedEncodingException;
 import java.net.URI;
 import java.util.HashMap;
 import java.util.List;
@@ -12,11 +13,13 @@ import lombok.extern.slf4j.Slf4j;
 import org.apache.http.Header;
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpHost;
+import org.apache.http.NameValuePair;
 import org.apache.http.auth.AuthScope;
 import org.apache.http.auth.Credentials;
 import org.apache.http.client.AuthCache;
 import org.apache.http.client.CredentialsProvider;
 import org.apache.http.client.HttpClient;
+import org.apache.http.client.entity.UrlEncodedFormEntity;
 import org.apache.http.client.methods.HttpGet;
 import org.apache.http.client.methods.HttpPost;
 import org.apache.http.client.methods.HttpUriRequest;
@@ -86,6 +89,26 @@ public class HttpRequestProcessor extends AbstractRequestProcessor {
     @Override
     public ResponseVO processPostRequest(String content, ContentType contentType, Map<String, String> headers) {
         HttpEntity httpEntity = new StringEntity(content, contentType);
+        if (headers != null && !headers.isEmpty()) {
+            return processPostRequest(httpEntity, createHttpHeadersFromMap(headers));
+        }
+        return processPostRequest(httpEntity);
+    }
+    
+    @Override
+    public ResponseVO processPostRequest(List<NameValuePair> formParams) {
+        return processPostRequest(formParams, new HashMap<>(0));
+    }
+    
+    @Override
+    public ResponseVO processPostRequest(List<NameValuePair> formParams, Map<String, String> headers) {
+        HttpEntity httpEntity;
+        try {
+            httpEntity = new UrlEncodedFormEntity(formParams);
+        } catch (UnsupportedEncodingException ex) {
+            Logger.getLogger(HttpRequestProcessor.class.getName()).log(Level.SEVERE, null, ex);
+            return new ResponseVO();
+        }
         if (headers != null && !headers.isEmpty()) {
             return processPostRequest(httpEntity, createHttpHeadersFromMap(headers));
         }
