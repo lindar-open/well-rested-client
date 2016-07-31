@@ -1,12 +1,7 @@
 package org.spauny.joy.wellrested.request;
 
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
 import java.util.List;
 import java.util.Map;
-import java.util.stream.Collectors;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.http.Header;
@@ -15,14 +10,15 @@ import org.apache.http.HttpResponse;
 import org.apache.http.NameValuePair;
 import org.apache.http.auth.Credentials;
 import org.apache.http.entity.ContentType;
-import org.apache.http.message.BasicHeader;
+import org.spauny.joy.wellrested.util.WellRestedUtil;
 import org.spauny.joy.wellrested.vo.ResponseVO;
 
 /**
- *
+ * This class is Deprecated. Please use WellRestedRequest instead!
  * @author iulian.dafinoiu
  */
 @Slf4j
+@Deprecated
 public abstract class AbstractRequestProcessor {
     protected static final String USER_AGENT = "Mozilla/5.0";
 
@@ -66,11 +62,7 @@ public abstract class AbstractRequestProcessor {
     }
 
     private boolean validateProxy(String host, int port) {
-        if (StringUtils.isBlank(host) || port < 1) {
-            throw new IllegalArgumentException("Please provide a valid host and port");
-        } else {
-            return true;
-        }
+        return WellRestedUtil.validateProxy(host, port);
     }
     
     public abstract ResponseVO processGetRequest();
@@ -79,6 +71,10 @@ public abstract class AbstractRequestProcessor {
     
     public abstract ResponseVO processPostRequest(HttpEntity entity);
     public abstract ResponseVO processPostRequest(HttpEntity entity, List<Header> headers);
+    
+    public abstract ResponseVO processPostRequest(List<NameValuePair> formParams);
+
+    public abstract ResponseVO processPostRequest(List<NameValuePair> formParams, Map<String, String> headers);
     
     /**
      * Convenient method to post a json string directly without having to work with HttpEntities 
@@ -135,39 +131,15 @@ public abstract class AbstractRequestProcessor {
 
 
     protected ResponseVO buildResponseVO(HttpResponse httpResponse) {
-        ResponseVO response = new ResponseVO();
-        fillStatusCodeForResponse(response, httpResponse);
-        InputStream responseContentStream = null;
-        try {
-            responseContentStream = httpResponse.getEntity().getContent();
-        } catch (IOException | IllegalStateException ex) {
-            log.error("Error trying to get response content: ", ex);
-        }
-        if (responseContentStream == null) {
-            return response;
-        }
-
-        try (BufferedReader reader = new BufferedReader(new InputStreamReader(responseContentStream))) {
-            response.setServerResponse(reader.lines().collect(Collectors.joining()));
-        } catch (IOException ex) {
-            log.error("Error submitting the request or processing the response: ", ex);
-        }
-        return response;
+        return WellRestedUtil.buildResponseVO(httpResponse);
     }
 
     protected void fillStatusCodeForResponse(ResponseVO response, HttpResponse httpResponse) {
-        int responseStatusCode = httpResponse.getStatusLine().getStatusCode();
-        if (responseStatusCode != 200) {
-            log.warn("Server problem detected, response code: " + responseStatusCode);
-        }
-        response.setStatusCode(responseStatusCode);
+        WellRestedUtil.fillStatusCodeForResponse(response, httpResponse);
     }
     
     protected List<Header> createHttpHeadersFromMap(Map<String, String> headers) {
-        return headers.entrySet().stream().map(entry -> new BasicHeader(entry.getKey(), entry.getValue())).collect(Collectors.toList());
+        return WellRestedUtil.createHttpHeadersFromMap(headers);
     }
 
-    public abstract ResponseVO processPostRequest(List<NameValuePair> formParams);
-
-    public abstract ResponseVO processPostRequest(List<NameValuePair> formParams, Map<String, String> headers);
 }
