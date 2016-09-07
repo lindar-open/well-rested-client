@@ -5,11 +5,13 @@ import com.google.gson.Gson;
 import java.io.File;
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import java.util.stream.Collectors;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.http.Header;
 import org.apache.http.HttpEntity;
@@ -24,6 +26,8 @@ import org.apache.http.client.fluent.Request;
 import org.apache.http.entity.ContentType;
 import org.apache.http.entity.StringEntity;
 import org.apache.http.entity.mime.MultipartEntityBuilder;
+import org.apache.http.message.BasicHeader;
+import org.apache.http.message.BasicNameValuePair;
 import org.spauny.joy.wellrested.request.HttpRequestProcessor;
 import org.spauny.joy.wellrested.util.WellRestedUtil;
 import org.spauny.joy.wellrested.vo.ResponseVO;
@@ -116,7 +120,11 @@ public class WellRestedRequest {
      * ****************** GET   ******************************************************************
      */
     public ResponseVO get() {
-        return get(null);
+        return get(new ArrayList<>(0));
+    }
+    
+    public ResponseVO get(Map<String, String> headers) {
+        return submitRequest(Request.Get(url), null, buildHeaders(headers));
     }
 
     public ResponseVO get(List<Header> headers) {
@@ -149,7 +157,7 @@ public class WellRestedRequest {
      * @return
      */
     public ResponseVO post(String content, ContentType contentType, Map<String, String> headers) {
-        HttpEntity httpEntity = new StringEntity(content, contentType);
+        HttpEntity httpEntity = new StringEntity(content, contentType); 
         if (headers != null && !headers.isEmpty()) {
             return post(httpEntity, WellRestedUtil.createHttpHeadersFromMap(headers));
         }
@@ -165,6 +173,29 @@ public class WellRestedRequest {
      */
     public ResponseVO post(List<NameValuePair> formParams) {
         return post(formParams, new HashMap<>(0));
+    }
+    
+    /**
+     * Convenient method to POST a map of FORM name-value pairs without having
+     * to work with HttpEntities and Http Headers
+     *
+     * @param formParams
+     * @param headers
+     * @return
+     */
+    public ResponseVO post(Map<String, String> formParams, Map<String, String> headers) {
+        HttpEntity httpEntity;
+        try {
+            List<NameValuePair> formParamsList = formParams.entrySet().stream().map(entry -> new BasicNameValuePair(entry.getKey(), entry.getValue())).collect(Collectors.toList());
+            httpEntity = new UrlEncodedFormEntity(formParamsList);
+        } catch (UnsupportedEncodingException ex) {
+            Logger.getLogger(HttpRequestProcessor.class.getName()).log(Level.SEVERE, null, ex);
+            return new ResponseVO();
+        }
+        if (headers != null && !headers.isEmpty()) {
+            return post(httpEntity, WellRestedUtil.createHttpHeadersFromMap(headers));
+        }
+        return post(httpEntity);
     }
 
     /**
@@ -492,6 +523,10 @@ public class WellRestedRequest {
             log.error("Error occured after executing the GET request: ", ex);
         }
         return WellRestedUtil.buildErrorResponseVO(url);
+    }
+    
+    private List<Header> buildHeaders(Map<String, String> headerMap) {
+        return headerMap.entrySet().stream().map(entry -> new BasicHeader(entry.getKey(), entry.getValue())).collect(Collectors.toList());
     }
 
 }

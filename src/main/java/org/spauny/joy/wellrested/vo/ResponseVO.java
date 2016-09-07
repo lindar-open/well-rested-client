@@ -24,10 +24,11 @@ public class ResponseVO implements Serializable {
     public <T> T castXmlResponse(Class<T> objClass) {
         return WellRestedXMLUtil.fromStringToObject(serverResponse, objClass);
     }
-    
+
     /**
-     * *  Use this method to deserialize a json string into an object. 
-     * This method uses the default date format: yyyy-MM-dd'T'HH:mm:ssz
+     * * Use this method to deserialize a json string into an object. This method uses the default date format:
+     * yyyy-MM-dd'T'HH:mm:ssz
+     *
      * @param <T>
      * @param objClass
      * @return
@@ -37,7 +38,9 @@ public class ResponseVO implements Serializable {
     }
 
     /**
-     *  Use this method to deserialize a json string into an object containing date fields using the provided date format.
+     * Use this method to deserialize a json string into an object containing date fields using the provided date
+     * format.
+     *
      * @param objClass
      * @param dateFormats
      * @return
@@ -54,11 +57,19 @@ public class ResponseVO implements Serializable {
         Gson gson = gsonBuilder.create();
         return gson.fromJson(this.serverResponse, objClass);
     }
+    
+    public <T> Result<T> castJsonResponseToResult(TypeToken<Result<T>> typeToken) {
+        GsonBuilder gsonBuilder = new GsonBuilder();
+        DateDeserializer dateDeserializer = new DateDeserializer();
+        gsonBuilder.registerTypeAdapter(Date.class, dateDeserializer);
+        Gson gson = gsonBuilder.create();
+        return gson.fromJson(this.serverResponse, typeToken.getType());
+    }
 
     public <T> List<T> castJsonResponseToList(TypeToken<List<T>> typeToken) {
         return castJsonResponseToList(null, null, typeToken, null);
     }
-    
+
     public <T, K> List<T> castJsonResponseToList(Class<K> deserialisedObjClas, JsonDeserializer<K> deserializer, TypeToken<List<T>> typeToken) {
         return castJsonResponseToList(deserialisedObjClas, deserializer, typeToken, null);
     }
@@ -77,5 +88,32 @@ public class ResponseVO implements Serializable {
         }
         Gson gson = gsonBuilder.create();
         return gson.fromJson(this.serverResponse, typeToken.getType());
+    }
+
+    /**
+     * This method verifies that the server response is not blank (to allow casting) and that the status code is lower
+     * than 300; Please note that a response might still be valid even when a server response is blank but in that case
+     * you don't need to cast anymore and you don't need to call this method. When in doubt please write your own
+     * validation method.
+     *
+     * @return
+     */
+    public boolean isValid() {
+        return StringUtils.isNotBlank(serverResponse) && statusCode < 300;
+    }
+
+    /**
+     * This method verifies if the underlying server response can be cast to the Result class and then verifies if the success flag is set to true
+     *
+     * @return
+     */
+    public boolean isResultValid() {
+        if (StringUtils.isNotBlank(serverResponse)) {
+            Result<?> result = castJsonResponse(Result.class);
+            if (result != null && result.isSuccess()) {
+                return true;
+            }
+        }
+        return false;
     }
 }
