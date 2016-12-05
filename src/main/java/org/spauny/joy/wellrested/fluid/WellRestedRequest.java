@@ -2,6 +2,7 @@ package org.spauny.joy.wellrested.fluid;
 
 import com.google.common.collect.Lists;
 import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
 import java.io.File;
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
@@ -269,7 +270,9 @@ public class WellRestedRequest {
      * @return
      */
     public <T> ResponseVO post(T object, Map<String, String> headers) {
-        Gson gson = new Gson();
+        GsonBuilder gsonBuilder = new GsonBuilder();
+        gsonBuilder.setDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSSZ");
+        Gson gson = gsonBuilder.create();
         ContentType contentType = ContentType.APPLICATION_JSON;
         HttpEntity httpEntity = new StringEntity(gson.toJson(object), contentType);
         if (headers != null && !headers.isEmpty()) {
@@ -297,6 +300,25 @@ public class WellRestedRequest {
      */
     public ResponseVO post(HttpEntity httpEntity, List<Header> headers) {
         return submitRequest(Request.Post(url), httpEntity, headers);
+    }
+    
+    /**
+     * Standard method to make a POST request without a body
+     *
+     * @return
+     */
+    public ResponseVO post() {
+        return submitRequest(Request.Post(url), null, null);
+    }
+    
+    /**
+     * Standard method to make a POST request without a body. You can still send a Map of headers though
+     *
+     * @param headers
+     * @return
+     */
+    public ResponseVO post(Map<String, String> headers) {
+        return submitRequest(Request.Post(url), null, WellRestedUtil.createHttpHeadersFromMap(headers));
     }
             
     /**
@@ -528,5 +550,5 @@ public class WellRestedRequest {
     private List<Header> buildHeaders(Map<String, String> headerMap) {
         return headerMap.entrySet().stream().map(entry -> new BasicHeader(entry.getKey(), entry.getValue())).collect(Collectors.toList());
     }
-
+    
 }

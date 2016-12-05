@@ -18,11 +18,6 @@ public class ResultFactory {
         return new Result<>(true, msg);
     }
 
-    public static <T> Result<T> getSuccessResult(String msg) {
-
-        return new Result<>(true, msg);
-    }
-
     public static <T> Result<T> getFailResult(String msg) {
 
         return new Result<>(false, msg);
