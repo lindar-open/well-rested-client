@@ -22,7 +22,7 @@ import org.spauny.joy.wellrested.vo.ResponseVO;
  */
 @Slf4j
 public final class WellRestedUtil {
-    
+
     public static ResponseVO legacyBuildResponseVO(HttpResponse httpResponse) {
         ResponseVO response = new ResponseVO();
         fillStatusCodeForResponse(response, httpResponse);
@@ -43,18 +43,22 @@ public final class WellRestedUtil {
         }
         return response;
     }
-    
+
     public static ResponseVO buildResponseVO(HttpResponse httpResponse) {
         return buildResponseVO(httpResponse, StringUtils.EMPTY);
     }
-    
+
     public static ResponseVO buildResponseVO(HttpResponse httpResponse, String url) {
         try {
-            String responseContent = EntityUtils.toString(httpResponse.getEntity());
-            int statusCode = httpResponse.getStatusLine().getStatusCode();
             ResponseVO responseVO = new ResponseVO();
             responseVO.setCurrentURI(url);
-            responseVO.setServerResponse(responseContent);
+
+            if (httpResponse.getEntity() != null) {
+                String responseContent = EntityUtils.toString(httpResponse.getEntity());
+                responseVO.setServerResponse(responseContent);
+            }
+            
+            int statusCode = httpResponse.getStatusLine().getStatusCode();
             responseVO.setStatusCode(statusCode);
             return responseVO;
         } catch (IOException | ParseException ex) {
@@ -62,7 +66,7 @@ public final class WellRestedUtil {
         }
         return buildErrorResponseVO(url);
     }
-    
+
     public static ResponseVO buildErrorResponseVO(String url) {
         ResponseVO responseVO = new ResponseVO();
         responseVO.setCurrentURI(url);
@@ -78,11 +82,11 @@ public final class WellRestedUtil {
         }
         response.setStatusCode(responseStatusCode);
     }
-    
+
     public static List<Header> createHttpHeadersFromMap(Map<String, String> headers) {
         return headers.entrySet().stream().map(entry -> new BasicHeader(entry.getKey(), entry.getValue())).collect(Collectors.toList());
     }
-    
+
     public static boolean validateProxy(String host, int port) {
         if (StringUtils.isBlank(host) || port < 1) {
             throw new IllegalArgumentException("Please provide a valid host and port");

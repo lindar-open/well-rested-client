@@ -1,18 +1,20 @@
 package org.spauny.joy.wellrested.vo;
 
 import com.google.common.reflect.TypeToken;
-import com.google.gson.Gson;
-import com.google.gson.GsonBuilder;
-import com.google.gson.JsonDeserializer;
-import java.io.Serializable;
-import java.util.Date;
-import java.util.List;
+import com.google.gson.*;
 import lombok.Data;
 import org.apache.commons.lang3.StringUtils;
 import org.spauny.joy.wellrested.util.DateDeserializer;
 import org.spauny.joy.wellrested.xml.WellRestedXMLUtil;
 
+import java.io.Serializable;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.List;
+import lombok.extern.slf4j.Slf4j;
+
 @Data
+@Slf4j
 public class ResponseVO implements Serializable {
 
     private static final long serialVersionUID = 51255400364556607L;
@@ -57,13 +59,34 @@ public class ResponseVO implements Serializable {
         Gson gson = gsonBuilder.create();
         return gson.fromJson(this.serverResponse, objClass);
     }
-    
+
     public <T> Result<T> castJsonResponseToResult(TypeToken<Result<T>> typeToken) {
+        try {
+            GsonBuilder gsonBuilder = new GsonBuilder();
+            DateDeserializer dateDeserializer = new DateDeserializer();
+            gsonBuilder.registerTypeAdapter(Date.class, dateDeserializer);
+            Gson gson = gsonBuilder.create();
+            return gson.fromJson(this.serverResponse, typeToken.getType());
+        } catch (Exception ex) {
+            log.info("castJsonResponseToResult: error casting response to result - {}", ex);
+        }
+        return ResultFactory.getFailResult("Error casting response to a Result object");
+    }
+
+    public <T> List<T> castAsList(Class<T> clazz) {
         GsonBuilder gsonBuilder = new GsonBuilder();
-        DateDeserializer dateDeserializer = new DateDeserializer();
-        gsonBuilder.registerTypeAdapter(Date.class, dateDeserializer);
         Gson gson = gsonBuilder.create();
-        return gson.fromJson(this.serverResponse, typeToken.getType());
+        JsonObject jsonObject = castJsonResponse(JsonObject.class);
+
+        List<T> list = new ArrayList<>();
+
+        if (!jsonObject.isJsonNull()) {
+            JsonArray jsonArray = jsonObject.getAsJsonArray("data");
+            jsonArray.forEach(object -> {
+                list.add(gson.fromJson(object.getAsJsonObject().toString(), clazz));
+            });
+        }
+        return list;
     }
 
     public <T> List<T> castJsonResponseToList(TypeToken<List<T>> typeToken) {
@@ -103,15 +126,20 @@ public class ResponseVO implements Serializable {
     }
 
     /**
-     * This method verifies if the underlying server response can be cast to the Result class and then verifies if the success flag is set to true
+     * This method verifies if the underlying server response can be cast to the Result class and then verifies if the
+     * success flag is set to true
      *
      * @return
      */
     public boolean isResultValid() {
         if (StringUtils.isNotBlank(serverResponse)) {
-            Result<?> result = castJsonResponse(Result.class);
-            if (result != null && result.isSuccess()) {
-                return true;
+            try {
+                Result<?> result = castJsonResponse(Result.class);
+                if (result != null && result.isSuccess()) {
+                    return true;
+                }
+            } catch (Exception e) {
+                log.error("isResultValid: exception occured - {}", e);
             }
         }
         return false;
