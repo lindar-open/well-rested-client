@@ -3,33 +3,36 @@ package org.spauny.joy.wellrested.vo;
 import java.io.Serializable;
 import java.util.List;
 import java.util.Objects;
+import java.util.function.Consumer;
+import java.util.function.Function;
 import org.apache.commons.lang3.StringUtils;
 
 public class Result<T> implements Serializable {
+
     private static final long serialVersionUID = 1987956456765489787L;
 
     final private boolean success;
     final private T data;
     final private String msg;
 
-    public Result (boolean success, T data, String msg) {
+    public Result(boolean success, T data, String msg) {
         this.success = success;
         this.data = data;
         this.msg = msg;
     }
 
-    public Result (boolean success, String msg) {
+    public Result(boolean success, String msg) {
         this.success = success;
         this.data = null;
         this.msg = msg;
     }
-    
-    public Result (boolean success, T data) {
+
+    public Result(boolean success, T data) {
         this.success = success;
         this.data = data;
         this.msg = StringUtils.EMPTY;
     }
-    
+
     public boolean isSuccess() {
         return success;
     }
@@ -42,6 +45,25 @@ public class Result<T> implements Serializable {
         return msg;
     }
 
+    public <U> Result<U> map(Function<? super T, ? extends U> mapper) {
+        Objects.requireNonNull(mapper);
+        if (!isSuccess()) {
+            return ResultFactory.getFailResult(msg);
+        } else {
+            return ResultFactory.getSuccessResult(mapper.apply(data));
+        }
+    }
+
+    public void ifSuccess(Consumer<? super T> consumer) {
+        if (data != null) {
+            consumer.accept(data);
+        }
+    }
+
+    public T orElse(T other) {
+        return data != null ? data : other;
+    }
+
     @Override
     public String toString() {
 
@@ -51,14 +73,14 @@ public class Result<T> implements Serializable {
 
         sb.append(", data=");
 
-        if(data == null){
+        if (data == null) {
 
             sb.append("null");
 
-        } else if(data instanceof List){
+        } else if (data instanceof List) {
 
             List castList = (List) data;
-            if(castList.isEmpty()){
+            if (castList.isEmpty()) {
 
                 sb.append("empty list");
 
