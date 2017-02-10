@@ -6,6 +6,7 @@ import com.google.gson.GsonBuilder;
 import java.io.File;
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
+import java.net.URI;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
@@ -43,65 +44,78 @@ import org.spauny.joy.wellrested.vo.ResponseVO;
 @Slf4j
 public class WellRestedRequest {
 
-    private final String url;
+    private final URI uri;
     private final Credentials credentials;
     private final HttpHost proxy;
 
-    private WellRestedRequest(String url) {
-        this.url = url;
+    private WellRestedRequest(URI uri) {
+        this.uri = uri;
         this.credentials = null;
         this.proxy = null;
     }
 
-    private WellRestedRequest(String url, Credentials credentials) {
-        this.url = url;
+    private WellRestedRequest(URI url, Credentials credentials) {
+        this.uri = url;
         this.credentials = credentials;
         this.proxy = null;
     }
 
-    private WellRestedRequest(String url, Credentials credentials, HttpHost proxy) {
-        this.url = url;
+    private WellRestedRequest(URI url, Credentials credentials, HttpHost proxy) {
+        this.uri = url;
         this.credentials = credentials;
         this.proxy = proxy;
     }
-
+    
     public static WellRestedRequest build(final String url) {
-        return new WellRestedRequest(url);
+        return new WellRestedRequest(URI.create(url));
     }
 
+    public static WellRestedRequest build(final URI uri) {
+        return new WellRestedRequest(uri);
+    }
+    
     public static WellRestedRequest build(final String url, final String username, final String password) {
         Credentials creds = new UsernamePasswordCredentials(username, password);
-        return new WellRestedRequest(url, creds);
+        return new WellRestedRequest(URI.create(url), creds);
     }
 
+    public static WellRestedRequest build(final URI uri, final String username, final String password) {
+        Credentials creds = new UsernamePasswordCredentials(username, password);
+        return new WellRestedRequest(uri, creds);
+    }
+    
     public static WellRestedRequest build(final String url, final Credentials credentials) {
-        return new WellRestedRequest(url, credentials);
+        return new WellRestedRequest(URI.create(url), credentials);
     }
 
-    public static WellRestedRequest buildWithProxy(final String url, HttpHost proxy) {
-        return new WellRestedRequest(url);
+    public static WellRestedRequest build(final URI uri, final Credentials credentials) {
+        return new WellRestedRequest(uri, credentials);
+    }
+
+    public static WellRestedRequest buildWithProxy(final URI uri, HttpHost proxy) {
+        return new WellRestedRequest(uri);
     }
 
     /**
      * Helper method for building a WellRestedRequest object with Proxy. Please provide the proxy host, port and scheme
      * (http or https).
      *
-     * @param url
+     * @param uri
      * @param proxyHost
      * @param proxyPort
      * @param scheme
      * @return
      */
-    public static WellRestedRequest buildWithProxy(final String url, String proxyHost, int proxyPort, String scheme) {
+    public static WellRestedRequest buildWithProxy(final URI uri, String proxyHost, int proxyPort, String scheme) {
         HttpHost proxy = new HttpHost(proxyHost, proxyPort, scheme);
-        return new WellRestedRequest(url, null, proxy);
+        return new WellRestedRequest(uri, null, proxy);
     }
 
     /**
      * Helper method for building a WellRestedRequest object with Proxy and Credentials. Please provide the proxy host,
      * port and scheme (http or https).
      *
-     * @param url
+     * @param uri
      * @param username
      * @param password
      * @param proxyHost
@@ -109,14 +123,14 @@ public class WellRestedRequest {
      * @param scheme
      * @return
      */
-    public static WellRestedRequest buildWithProxy(final String url, final String username, final String password, String proxyHost, int proxyPort, String scheme) {
+    public static WellRestedRequest buildWithProxy(final URI uri, final String username, final String password, String proxyHost, int proxyPort, String scheme) {
         Credentials creds = new UsernamePasswordCredentials(username, password);
         HttpHost proxy = new HttpHost(proxyHost, proxyPort, scheme);
-        return new WellRestedRequest(url, creds, proxy);
+        return new WellRestedRequest(uri, creds, proxy);
     }
 
-    public static WellRestedRequest buildWithProxy(final String url, final Credentials credentials, final HttpHost proxy) {
-        return new WellRestedRequest(url, credentials, proxy);
+    public static WellRestedRequest buildWithProxy(final URI uri, final Credentials credentials, final HttpHost proxy) {
+        return new WellRestedRequest(uri, credentials, proxy);
     }
 
     /**
@@ -127,11 +141,11 @@ public class WellRestedRequest {
     }
 
     public ResponseVO get(Map<String, String> headers) {
-        return submitRequest(Request.Get(url), null, buildHeaders(headers));
+        return submitRequest(Request.Get(uri), null, buildHeaders(headers));
     }
 
     public ResponseVO get(List<Header> headers) {
-        return submitRequest(Request.Get(url), null, headers);
+        return submitRequest(Request.Get(uri), null, headers);
     }
 
     /**
@@ -299,7 +313,7 @@ public class WellRestedRequest {
      * @return
      */
     public ResponseVO post(HttpEntity httpEntity, List<Header> headers) {
-        return submitRequest(Request.Post(url), httpEntity, headers);
+        return submitRequest(Request.Post(uri), httpEntity, headers);
     }
 
     /**
@@ -308,7 +322,7 @@ public class WellRestedRequest {
      * @return
      */
     public ResponseVO post() {
-        return submitRequest(Request.Post(url), null, null);
+        return submitRequest(Request.Post(uri), null, null);
     }
 
     /**
@@ -318,7 +332,7 @@ public class WellRestedRequest {
      * @return
      */
     public ResponseVO post(Map<String, String> headers) {
-        return submitRequest(Request.Post(url), null, WellRestedUtil.createHttpHeadersFromMap(headers));
+        return submitRequest(Request.Post(uri), null, WellRestedUtil.createHttpHeadersFromMap(headers));
     }
 
     /**
@@ -355,7 +369,7 @@ public class WellRestedRequest {
         MultipartEntityBuilder builder = MultipartEntityBuilder.create();
         builder.addBinaryBody("file", file, contentType, file.getName());
         HttpEntity multipart = builder.build();
-        return submitRequest(Request.Post(url), multipart, headers);
+        return submitRequest(Request.Post(uri), multipart, headers);
     }
 
     /**
@@ -500,7 +514,7 @@ public class WellRestedRequest {
      * @return
      */
     public ResponseVO put(HttpEntity httpEntity, List<Header> headers) {
-        return submitRequest(Request.Put(url), httpEntity, headers);
+        return submitRequest(Request.Put(uri), httpEntity, headers);
     }
 
     /**
@@ -511,7 +525,7 @@ public class WellRestedRequest {
     }
 
     public ResponseVO delete(List<Header> headers) {
-        return submitRequest(Request.Delete(url), null, headers);
+        return submitRequest(Request.Delete(uri), null, headers);
     }
 
     /**
@@ -539,11 +553,11 @@ public class WellRestedRequest {
             } else {
                 httpResponse = request.execute().returnResponse();
             }
-            return WellRestedUtil.buildResponseVO(httpResponse, url);
+            return WellRestedUtil.buildResponseVO(httpResponse, uri.toString());
         } catch (IOException ex) {
             log.error("Error occured after executing the GET request: ", ex);
         }
-        return WellRestedUtil.buildErrorResponseVO(url);
+        return WellRestedUtil.buildErrorResponseVO(uri.toString());
     }
 
     private List<Header> buildHeaders(Map<String, String> headerMap) {
