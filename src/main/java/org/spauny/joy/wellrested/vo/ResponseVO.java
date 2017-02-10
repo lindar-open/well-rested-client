@@ -75,16 +75,21 @@ public class ResponseVO implements Serializable {
 
     public <T> List<T> castAsList(Class<T> clazz) {
         GsonBuilder gsonBuilder = new GsonBuilder();
+        DateDeserializer dateDeserializer = new DateDeserializer();
+        gsonBuilder.registerTypeAdapter(Date.class, dateDeserializer);
         Gson gson = gsonBuilder.create();
         JsonObject jsonObject = castJsonResponse(JsonObject.class);
 
         List<T> list = new ArrayList<>();
 
         if (!jsonObject.isJsonNull()) {
-            JsonArray jsonArray = jsonObject.getAsJsonArray("data");
-            jsonArray.forEach(object -> {
-                list.add(gson.fromJson(object.getAsJsonObject().toString(), clazz));
-            });
+            JsonElement jsonElement = jsonObject.get("data");
+            if (jsonElement.isJsonArray()) {
+                JsonArray jsonArray = jsonElement.getAsJsonArray();
+                jsonArray.forEach(object -> {
+                    list.add(gson.fromJson(object.getAsJsonObject().toString(), clazz));
+                });
+            }
         }
         return list;
     }
