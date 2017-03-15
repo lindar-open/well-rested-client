@@ -1,4 +1,4 @@
-package lindar.wellrested.util;
+package com.lindar.wellrested.util;
 
 import com.google.gson.JsonElement;
 import com.google.gson.JsonParseException;

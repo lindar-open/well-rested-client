@@ -1,4 +1,4 @@
-package lindar.wellrested;
+package com.lindar.wellrested;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
@@ -28,10 +28,10 @@ import org.apache.http.entity.StringEntity;
 import org.apache.http.entity.mime.MultipartEntityBuilder;
 import org.apache.http.message.BasicHeader;
 import org.apache.http.message.BasicNameValuePair;
-import lindar.wellrested.util.DateDeserializer;
-import lindar.wellrested.util.DateSerializer;
-import lindar.wellrested.util.WellRestedUtil;
-import lindar.wellrested.vo.ResponseVO;
+import com.lindar.wellrested.util.DateDeserializer;
+import com.lindar.wellrested.util.DateSerializer;
+import com.lindar.wellrested.util.WellRestedUtil;
+import com.lindar.wellrested.vo.ResponseVO;
 
 /**
  *

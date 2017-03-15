@@ -1,4 +1,4 @@
-package lindar.wellrested.xml;
+package com.lindar.wellrested.xml;
 
 import java.io.StringReader;
 import java.io.StringWriter;

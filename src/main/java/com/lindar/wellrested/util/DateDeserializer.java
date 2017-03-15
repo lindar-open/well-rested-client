@@ -1,4 +1,4 @@
-package lindar.wellrested.util;
+package com.lindar.wellrested.util;
 
 import com.google.gson.JsonDeserializationContext;
 import com.google.gson.JsonDeserializer;

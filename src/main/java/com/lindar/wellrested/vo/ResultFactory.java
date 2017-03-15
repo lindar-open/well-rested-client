@@ -1,4 +1,4 @@
-package lindar.wellrested.vo;
+package com.lindar.wellrested.vo;
 
 
 public class ResultFactory {

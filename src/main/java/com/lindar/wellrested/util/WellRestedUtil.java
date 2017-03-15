@@ -1,4 +1,4 @@
-package lindar.wellrested.util;
+package com.lindar.wellrested.util;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -14,7 +14,7 @@ import org.apache.http.HttpResponse;
 import org.apache.http.ParseException;
 import org.apache.http.message.BasicHeader;
 import org.apache.http.util.EntityUtils;
-import lindar.wellrested.vo.ResponseVO;
+import com.lindar.wellrested.vo.ResponseVO;
 
 /**
  *
