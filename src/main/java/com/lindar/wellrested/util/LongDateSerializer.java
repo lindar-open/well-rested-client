@@ -10,7 +10,7 @@ import java.util.Date;
 import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
-public class DateSerializer implements JsonSerializer<Date> {
+public class LongDateSerializer implements JsonSerializer<Date> {
 
     @Override
     public JsonElement serialize(Date src, Type arg1, JsonSerializationContext arg2) throws JsonParseException {

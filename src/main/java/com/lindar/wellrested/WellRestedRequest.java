@@ -29,7 +29,7 @@ import org.apache.http.entity.mime.MultipartEntityBuilder;
 import org.apache.http.message.BasicHeader;
 import org.apache.http.message.BasicNameValuePair;
 import com.lindar.wellrested.util.DateDeserializer;
-import com.lindar.wellrested.util.DateSerializer;
+import com.lindar.wellrested.util.StringDateSerializer;
 import com.lindar.wellrested.util.WellRestedUtil;
 import com.lindar.wellrested.vo.ResponseVO;
 
@@ -281,7 +281,7 @@ public class WellRestedRequest {
         GsonBuilder gsonBuilder = new GsonBuilder();
 //        gsonBuilder.setDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSSZ");
         gsonBuilder.registerTypeAdapter(Date.class, new DateDeserializer());
-        gsonBuilder.registerTypeAdapter(Date.class, new DateSerializer());
+        gsonBuilder.registerTypeAdapter(Date.class, new StringDateSerializer());
         Gson gson = gsonBuilder.create();
         ContentType contentType = ContentType.APPLICATION_JSON;
         HttpEntity httpEntity = new StringEntity(gson.toJson(object), contentType);
@@ -482,7 +482,7 @@ public class WellRestedRequest {
         GsonBuilder gsonBuilder = new GsonBuilder();
 //        gsonBuilder.setDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSSZ");
         gsonBuilder.registerTypeAdapter(Date.class, new DateDeserializer());
-        gsonBuilder.registerTypeAdapter(Date.class, new DateSerializer());
+        gsonBuilder.registerTypeAdapter(Date.class, new StringDateSerializer());
         Gson gson = gsonBuilder.create();
         ContentType contentType = ContentType.APPLICATION_JSON;
         HttpEntity httpEntity = new StringEntity(gson.toJson(object), contentType);

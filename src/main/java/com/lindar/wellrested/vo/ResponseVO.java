@@ -144,7 +144,7 @@ public class ResponseVO implements Serializable {
                     return true;
                 }
             } catch (Exception e) {
-                log.error("isResultValid: exception occured - {}", e);
+                log.warn("isResultValid: exception occured - {}", e);
             }
         }
         return false;
