@@ -1,4 +1,4 @@
-package org.spauny.joy.wellrested.vo;
+package lindar.wellrested.vo;
 
 
 public class ResultFactory {

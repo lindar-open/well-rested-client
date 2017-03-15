@@ -1,4 +1,4 @@
-package org.spauny.joy.wellrested.util;
+package lindar.wellrested.util;
 
 import com.google.gson.JsonElement;
 import com.google.gson.JsonParseException;

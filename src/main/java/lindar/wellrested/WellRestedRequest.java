@@ -1,4 +1,4 @@
-package org.spauny.joy.wellrested.fluid;
+package lindar.wellrested;
 
 import com.google.common.collect.Lists;
 import com.google.gson.Gson;
@@ -12,8 +12,6 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 import java.util.stream.Collectors;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.http.Header;
@@ -31,11 +29,10 @@ import org.apache.http.entity.StringEntity;
 import org.apache.http.entity.mime.MultipartEntityBuilder;
 import org.apache.http.message.BasicHeader;
 import org.apache.http.message.BasicNameValuePair;
-import org.spauny.joy.wellrested.request.HttpRequestProcessor;
-import org.spauny.joy.wellrested.util.DateDeserializer;
-import org.spauny.joy.wellrested.util.DateSerializer;
-import org.spauny.joy.wellrested.util.WellRestedUtil;
-import org.spauny.joy.wellrested.vo.ResponseVO;
+import lindar.wellrested.util.DateDeserializer;
+import lindar.wellrested.util.DateSerializer;
+import lindar.wellrested.util.WellRestedUtil;
+import lindar.wellrested.vo.ResponseVO;
 
 /**
  *
@@ -204,7 +201,7 @@ public class WellRestedRequest {
             List<NameValuePair> formParamsList = formParams.entrySet().stream().map(entry -> new BasicNameValuePair(entry.getKey(), entry.getValue())).collect(Collectors.toList());
             httpEntity = new UrlEncodedFormEntity(formParamsList);
         } catch (UnsupportedEncodingException ex) {
-            Logger.getLogger(HttpRequestProcessor.class.getName()).log(Level.SEVERE, null, ex);
+            log.error("post: ", ex);
             return new ResponseVO();
         }
         if (headers != null && !headers.isEmpty()) {
@@ -226,7 +223,7 @@ public class WellRestedRequest {
         try {
             httpEntity = new UrlEncodedFormEntity(formParams);
         } catch (UnsupportedEncodingException ex) {
-            Logger.getLogger(HttpRequestProcessor.class.getName()).log(Level.SEVERE, null, ex);
+            log.error("post: ", ex);
             return new ResponseVO();
         }
         if (headers != null && !headers.isEmpty()) {
@@ -427,7 +424,7 @@ public class WellRestedRequest {
         try {
             httpEntity = new UrlEncodedFormEntity(formParams);
         } catch (UnsupportedEncodingException ex) {
-            Logger.getLogger(HttpRequestProcessor.class.getName()).log(Level.SEVERE, null, ex);
+            log.error("put: ", ex);
             return new ResponseVO();
         }
         if (headers != null && !headers.isEmpty()) {

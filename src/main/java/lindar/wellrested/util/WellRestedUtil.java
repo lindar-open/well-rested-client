@@ -1,4 +1,4 @@
-package org.spauny.joy.wellrested.util;
+package lindar.wellrested.util;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -14,7 +14,7 @@ import org.apache.http.HttpResponse;
 import org.apache.http.ParseException;
 import org.apache.http.message.BasicHeader;
 import org.apache.http.util.EntityUtils;
-import org.spauny.joy.wellrested.vo.ResponseVO;
+import lindar.wellrested.vo.ResponseVO;
 
 /**
  *

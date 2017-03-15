@@ -1,11 +1,11 @@
-package org.spauny.joy.wellrested.vo;
+package lindar.wellrested.vo;
 
 import com.google.common.reflect.TypeToken;
 import com.google.gson.*;
 import lombok.Data;
 import org.apache.commons.lang3.StringUtils;
-import org.spauny.joy.wellrested.util.DateDeserializer;
-import org.spauny.joy.wellrested.xml.WellRestedXMLUtil;
+import lindar.wellrested.util.DateDeserializer;
+import lindar.wellrested.xml.WellRestedXMLUtil;
 
 import java.io.Serializable;
 import java.util.ArrayList;
