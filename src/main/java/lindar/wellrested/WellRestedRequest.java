@@ -1,6 +1,5 @@
 package lindar.wellrested;
 
-import com.google.common.collect.Lists;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import java.io.File;
@@ -299,7 +298,7 @@ public class WellRestedRequest {
      * @return
      */
     public ResponseVO post(HttpEntity entity) {
-        return post(entity, Lists.newArrayList());
+        return post(entity, new ArrayList<>(0));
     }
 
     /**
@@ -500,7 +499,7 @@ public class WellRestedRequest {
      * @return
      */
     public ResponseVO put(HttpEntity entity) {
-        return put(entity, Lists.newArrayList());
+        return put(entity, new ArrayList<>(0));
     }
 
     /**

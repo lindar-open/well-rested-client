@@ -1,6 +1,5 @@
 package lindar.wellrested.util;
 
-import com.google.common.collect.Lists;
 import com.google.gson.JsonDeserializationContext;
 import com.google.gson.JsonDeserializer;
 import com.google.gson.JsonElement;
@@ -9,6 +8,7 @@ import java.lang.reflect.Type;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
 import lombok.extern.slf4j.Slf4j;
@@ -35,7 +35,7 @@ public class DateDeserializer implements JsonDeserializer<Date> {
     }
 
     public DateDeserializer(String dateFormat) {
-        this.dateFormats = Lists.newArrayList(dateFormat);
+        this.dateFormats = Arrays.asList(dateFormat);
     }
 
     public DateDeserializer() {
