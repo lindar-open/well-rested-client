@@ -2,6 +2,12 @@ package com.lindar.wellrested;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
+import com.google.gson.JsonDeserializer;
+import com.google.gson.JsonSerializer;
+import com.lindar.wellrested.util.DateDeserializer;
+import com.lindar.wellrested.util.StringDateSerializer;
+import com.lindar.wellrested.util.WellRestedUtil;
+import com.lindar.wellrested.vo.ResponseVO;
 import java.io.File;
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
@@ -13,6 +19,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.http.Header;
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpHost;
@@ -28,21 +35,17 @@ import org.apache.http.entity.StringEntity;
 import org.apache.http.entity.mime.MultipartEntityBuilder;
 import org.apache.http.message.BasicHeader;
 import org.apache.http.message.BasicNameValuePair;
-import com.lindar.wellrested.util.DateDeserializer;
-import com.lindar.wellrested.util.StringDateSerializer;
-import com.lindar.wellrested.util.WellRestedUtil;
-import com.lindar.wellrested.vo.ResponseVO;
 
-/**
- *
- * @author iulian.dafinoiu
- */
 @Slf4j
 public class WellRestedRequest {
 
     private final URI uri;
     private final Credentials credentials;
     private final HttpHost proxy;
+    
+    private JsonSerializer<Date> dateSerializer = new StringDateSerializer();
+    private JsonDeserializer<Date> dateDeserializer = new DateDeserializer();
+    private String dateFormat = StringUtils.EMPTY;
 
     private WellRestedRequest(URI uri) {
         this.uri = uri;
@@ -91,7 +94,7 @@ public class WellRestedRequest {
     public static WellRestedRequest buildWithProxy(final URI uri, HttpHost proxy) {
         return new WellRestedRequest(uri);
     }
-
+    
     /**
      * Helper method for building a WellRestedRequest object with Proxy. Please provide the proxy host, port and scheme
      * (http or https).
@@ -128,6 +131,50 @@ public class WellRestedRequest {
     public static WellRestedRequest buildWithProxy(final URI uri, final Credentials credentials, final HttpHost proxy) {
         return new WellRestedRequest(uri, credentials, proxy);
     }
+    
+    
+    /**
+     * Use this method to override the default dateSerializer. 
+     * The default one is {@link com.lindar.wellrested.util.StringDateSerializer}
+     * <br/>
+     * NOTE: Well Rested Client provides 2 serializers which can be passed as parameters for this method: <br/>
+     * - {@link com.lindar.wellrested.util.StringDateSerializer} <br/>
+     * - {@link com.lindar.wellrested.util.LongDateSerializer} <br/>
+     * If neither satisfies your requirements, please write your own.
+     * @param dateSerializer
+     * @return
+     */
+    public WellRestedRequest setDateSerializer(JsonSerializer<Date> dateSerializer) {
+        this.dateSerializer = dateSerializer;
+        return this;
+    }
+    
+    /**
+     * Use this method to override the default dateSerializer. 
+     * The default one is {@link com.lindar.wellrested.util.DateDeserializer}
+     * <br/>
+     * If the default one doesn't satisfy your requirements, please write your own.
+     * @param dateDeserializer
+     * @return
+     */
+    public WellRestedRequest setDateDeserializer(JsonDeserializer<Date> dateDeserializer) {
+        this.dateDeserializer = dateDeserializer;
+        return this;
+    }
+    
+    /**
+     * Use this method to provide a date format that will be used when doing both the serialization and deserialization. <br/>
+     * If you require different formats for serialization and deserialization, please use the <b>setDateSerializer</b> and <b>setDateDeserializer</b> methods. <br/>
+     * By default this class uses {@link com.lindar.wellrested.util.StringDateSerializer} and {@link com.lindar.wellrested.util.DateDeserializer} <br/>
+     * <b>PLEASE NOTE:</b> By setting a dateFormat, you <b>override</b> any other serializer and deserializer!
+     * @param dateFormat
+     * @return
+     */
+    public WellRestedRequest setDateFormat(String dateFormat) {
+        this.dateFormat = dateFormat;
+        return this;
+    }
+    
 
     /**
      * ****************** GET ******************************************************************
@@ -274,15 +321,12 @@ public class WellRestedRequest {
      * without having to work with HttpEntities or Http Headers
      *
      * @param <T> object to be converted into JSON and posted
+     * @param object
      * @param headers
      * @return
      */
     public <T> ResponseVO post(T object, Map<String, String> headers) {
-        GsonBuilder gsonBuilder = new GsonBuilder();
-//        gsonBuilder.setDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSSZ");
-        gsonBuilder.registerTypeAdapter(Date.class, new DateDeserializer());
-        gsonBuilder.registerTypeAdapter(Date.class, new StringDateSerializer());
-        Gson gson = gsonBuilder.create();
+        Gson gson = buildGson();
         ContentType contentType = ContentType.APPLICATION_JSON;
         HttpEntity httpEntity = new StringEntity(gson.toJson(object), contentType);
         if (headers != null && !headers.isEmpty()) {
@@ -335,7 +379,6 @@ public class WellRestedRequest {
      * Standard method to POST a File. Uses ContentType.MULTIPART_FORM_DATA as default content type for posting files
      *
      * @param file
-     * @param contentType
      * @return
      */
     public ResponseVO post(File file) {
@@ -475,15 +518,12 @@ public class WellRestedRequest {
      * without having to work with HttpEntities or Http Headers
      *
      * @param <T> object to be converted into JSON and posted
+     * @param object
      * @param headers
      * @return
      */
     public <T> ResponseVO put(T object, Map<String, String> headers) {
-        GsonBuilder gsonBuilder = new GsonBuilder();
-//        gsonBuilder.setDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSSZ");
-        gsonBuilder.registerTypeAdapter(Date.class, new DateDeserializer());
-        gsonBuilder.registerTypeAdapter(Date.class, new StringDateSerializer());
-        Gson gson = gsonBuilder.create();
+        Gson gson = buildGson();
         ContentType contentType = ContentType.APPLICATION_JSON;
         HttpEntity httpEntity = new StringEntity(gson.toJson(object), contentType);
         if (headers != null && !headers.isEmpty()) {
@@ -558,6 +598,17 @@ public class WellRestedRequest {
 
     private List<Header> buildHeaders(Map<String, String> headerMap) {
         return headerMap.entrySet().stream().map(entry -> new BasicHeader(entry.getKey(), entry.getValue())).collect(Collectors.toList());
+    }
+    
+    private Gson buildGson() {
+        GsonBuilder gsonBuilder = new GsonBuilder();
+        if (StringUtils.isBlank(this.dateFormat)) {
+            gsonBuilder.registerTypeAdapter(Date.class, this.dateSerializer);
+            gsonBuilder.registerTypeAdapter(Date.class, this.dateDeserializer);
+        } else {
+            gsonBuilder.setDateFormat(this.dateFormat);
+        }
+        return gsonBuilder.create();
     }
 
 }

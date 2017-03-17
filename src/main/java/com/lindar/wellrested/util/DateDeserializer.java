@@ -14,6 +14,17 @@ import java.util.List;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.math.NumberUtils;
 
+/**
+ * This class supports deserializing to date objects from both strings and longs. 
+ * If a long time is provided then a date is created from that long. <br/>
+ * If a string is provided, then the deserializer will use its 4 default formats to try and create a date object. 
+ * You can also provide your own date formats if neither of the default ones satisfies your requirements. <br/>
+ * The default formats are: <br/>
+ * DEF_DATE_FORMATS.add("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'"); <br/>
+ * DEF_DATE_FORMATS.add("yyyy-MM-dd'T'HH:mm:ss.SSS"); <br/>
+ * DEF_DATE_FORMATS.add("yyyy-MM-dd'T'HH:mm:ss"); <br/>
+ * DEF_DATE_FORMATS.add("yyyy-MM-dd"); 
+ */
 @Slf4j
 public class DateDeserializer implements JsonDeserializer<Date> {
 

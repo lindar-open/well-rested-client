@@ -9,6 +9,11 @@ import java.lang.reflect.Type;
 import java.util.Date;
 import lombok.extern.slf4j.Slf4j;
 
+/**
+ * This class serializes all date objects to long (date.getTime())
+ * If you'd like for your date to be serialised to a formatted date string please use 
+ * {@link com.lindar.wellrested.util.StringDateSerializer}
+ */
 @Slf4j
 public class LongDateSerializer implements JsonSerializer<Date> {
 
