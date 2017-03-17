@@ -35,7 +35,7 @@ ResponseVO serverResponse = WellRestedRequest.build(url).post(xmlString, Content
 ```
 
 
-- support for custom date serializers and deserializers and date formats: 
+**Support for custom date serializers and deserializers and date formats:** 
 
 Set date format (please note, the date format **overrides** any set serializers and deserializers):
 ``` java
