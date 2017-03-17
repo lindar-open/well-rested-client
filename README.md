@@ -34,4 +34,29 @@ ResponseVO serverResponse = WellRestedRequest.build(url).post(myObj);
 ResponseVO serverResponse = WellRestedRequest.build(url).post(xmlString, ContentType.APPLICATION_XML);
 ```
 
+
+- support for custom date serializers and deserializers and date formats: 
+
+Set date format (please note, the date format **overrides** any set serializers and deserializers):
+``` java
+ResponseVO serverResponse = WellRestedRequest.build(url).setDateFormat("yyyy-MM-dd").post(myObj);
+```
+
+Set provided String date serializer with custom format, Long date serializer or your own serializer:
+
+``` java
+ResponseVO serverResponse = WellRestedRequest.build(url).setDateSerializer(new StringDateSerializer("yyyy/MM/dd")).post(myObj); 
+ResponseVO serverResponse = WellRestedRequest.build(url).setDateSerializer(new LongDateSerializer()).post(myObj); 
+ResponseVO serverResponse = WellRestedRequest.build(url).setDateSerializer(new MyCustomDateSerializer()).post(myObj); 
+```
+
+Set provided date Deserializer with custom formats or your own deserializer:
+
+``` java
+ResponseVO serverResponse = WellRestedRequest.build(url).setDateDeserializer(new DateDeserializer("yyyy/MM/dd")).post(myObj); 
+ResponseVO serverResponse = WellRestedRequest.build(url).setDateDeserializer(new DateDeserializer(Arrays.asList("yyyy/MM/dd", "dd/MM/yyyy"))).post(myObj); 
+ResponseVO serverResponse = WellRestedRequest.build(url).setDateDeserializer(new MyCustomDateDeserializer()).post(myObj); 
+```
+
+
 More examples to come...
