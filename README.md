@@ -60,3 +60,13 @@ ResponseVO serverResponse = WellRestedRequest.build(url).setDateDeserializer(new
 
 
 More examples to come...
+
+Usage: 
+
+```xml
+<dependency>
+    <groupId>com.lindar</groupId>
+    <artifactId>well-rested-client</artifactId>
+    <version>1.0.1</version>
+</dependency>
+```
