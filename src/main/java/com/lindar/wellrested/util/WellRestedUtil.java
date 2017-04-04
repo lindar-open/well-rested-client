@@ -54,7 +54,9 @@ public final class WellRestedUtil {
             responseVO.setCurrentURI(url);
 
             if (httpResponse.getEntity() != null) {
-                String responseContent = EntityUtils.toString(httpResponse.getEntity());
+                String responseContent = httpResponse.getEntity() != null 
+                        ? EntityUtils.toString(httpResponse.getEntity()) 
+                        : StringUtils.EMPTY;
                 responseVO.setServerResponse(responseContent);
             }
             
