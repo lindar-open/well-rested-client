@@ -8,16 +8,6 @@ import com.lindar.wellrested.util.DateDeserializer;
 import com.lindar.wellrested.util.StringDateSerializer;
 import com.lindar.wellrested.util.WellRestedUtil;
 import com.lindar.wellrested.vo.ResponseVO;
-import java.io.File;
-import java.io.IOException;
-import java.io.UnsupportedEncodingException;
-import java.net.URI;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.stream.Collectors;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.http.Header;
@@ -35,6 +25,17 @@ import org.apache.http.entity.StringEntity;
 import org.apache.http.entity.mime.MultipartEntityBuilder;
 import org.apache.http.message.BasicHeader;
 import org.apache.http.message.BasicNameValuePair;
+
+import java.io.File;
+import java.io.IOException;
+import java.io.UnsupportedEncodingException;
+import java.net.URI;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
 
 @Slf4j
 public class WellRestedRequest {
@@ -194,6 +195,17 @@ public class WellRestedRequest {
     /**
      * ****************** POST ******************************************************************
      */
+
+    /**
+     * Standard method to make a POST request without a body
+     *
+     * @return
+     */
+    public ResponseVO post() {
+        return submitRequest(Request.Post(uri), null, null);
+    }
+
+
     /**
      * Convenient method to POST a json or xml directly (by setting the content type that you want) without having to
      * work with HttpEntities
@@ -356,14 +368,6 @@ public class WellRestedRequest {
         return submitRequest(Request.Post(uri), httpEntity, headers);
     }
 
-    /**
-     * Standard method to make a POST request without a body
-     *
-     * @return
-     */
-    public ResponseVO post() {
-        return submitRequest(Request.Post(uri), null, null);
-    }
 
     /**
      * Standard method to make a POST request without a body. You can still send a Map of headers though
@@ -411,9 +415,21 @@ public class WellRestedRequest {
         return submitRequest(Request.Post(uri), multipart, headers);
     }
 
+
     /**
      * ************************** PUT ***********************************
      */
+
+
+    /**
+     * Standard method to make a POST request without a body
+     *
+     * @return
+     */
+    public ResponseVO put() {
+        return submitRequest(Request.Put(uri), null, null);
+    }
+
     /**
      * Convenient method to PUT a json or xml directly (by setting the content type that you want) without having to
      * work with HttpEntities
@@ -575,7 +591,7 @@ public class WellRestedRequest {
             }
 
             if (headers != null && !headers.isEmpty()) {
-                headers.forEach(header -> request.addHeader(header));
+                headers.forEach(request::addHeader);
             }
 
             if (this.proxy != null) {

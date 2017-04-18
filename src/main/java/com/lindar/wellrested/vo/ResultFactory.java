@@ -4,32 +4,43 @@ package com.lindar.wellrested.vo;
 public class ResultFactory {
 
     public static <T> Result<T> getSuccessResult(T data) {
-
         return new Result<>(true, data);
     }
 
     public static <T> Result<T> getSuccessResult(T data, String msg) {
-
         return new Result<>(true, data, msg);
     }
 
-    public static <T> Result<T> getSuccessResultMsg(String msg) {
+    public static <T> Result<T> getSuccessResult(T data, String msg, String code) {
+        return new Result<>(true, data, msg, code);
+    }
 
+    public static <T> Result<T> getSuccessResultMsg(String msg) {
         return new Result<>(true, msg);
     }
 
-    public static <T> Result<T> getFailResult(String msg) {
+    public static <T> Result<T> getSuccessResultMsg(String msg, String code) {
+        return new Result<>(true, null, msg, code);
+    }
 
+
+    public static <T> Result<T> getFailResult(String msg) {
         return new Result<>(false, msg);
+    }
+
+    public static <T> Result<T> getFailResult(String msg, String code) {
+        return new Result<>(false, null, msg, code);
     }
     
     public static <T> Result<T> getFailResult(T data, String msg) {
-
         return new Result<>(false, data, msg);
     }
 
-    public static <T> Result<T> getNotFoundResult() {
+    public static <T> Result<T> getFailResult(T data, String msg, String code) {
+        return new Result<>(false, data, msg, code);
+    }
 
+    public static <T> Result<T> getNotFoundResult() {
         return new Result<>(false, "Not Found");
     }
 

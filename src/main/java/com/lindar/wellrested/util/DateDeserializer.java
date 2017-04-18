@@ -4,15 +4,16 @@ import com.google.gson.JsonDeserializationContext;
 import com.google.gson.JsonDeserializer;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonParseException;
+import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang3.math.NumberUtils;
+
 import java.lang.reflect.Type;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.util.Arrays;
+import java.util.Collections;
 import java.util.Date;
 import java.util.List;
-import lombok.extern.slf4j.Slf4j;
-import org.apache.commons.lang3.math.NumberUtils;
 
 /**
  * This class supports deserializing to date objects from both strings and longs. 
@@ -31,7 +32,8 @@ public class DateDeserializer implements JsonDeserializer<Date> {
     private static final List<String> DEF_DATE_FORMATS;
 
     static {
-        DEF_DATE_FORMATS = new ArrayList<>(3);
+        DEF_DATE_FORMATS = new ArrayList<>(5);
+        DEF_DATE_FORMATS.add("yyyy-MM-dd'T'HH:mm:ss.SSSZZ");
         DEF_DATE_FORMATS.add("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'");
         DEF_DATE_FORMATS.add("yyyy-MM-dd'T'HH:mm:ss.SSS");
         DEF_DATE_FORMATS.add("yyyy-MM-dd'T'HH:mm:ss");
@@ -46,7 +48,7 @@ public class DateDeserializer implements JsonDeserializer<Date> {
     }
 
     public DateDeserializer(String dateFormat) {
-        this.dateFormats = Arrays.asList(dateFormat);
+        this.dateFormats = Collections.singletonList(dateFormat);
     }
 
     public DateDeserializer() {

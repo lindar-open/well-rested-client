@@ -1,12 +1,13 @@
 package com.lindar.wellrested.vo;
 
+import lombok.Value;
+import org.apache.commons.lang3.StringUtils;
+
 import java.io.Serializable;
 import java.util.Objects;
 import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.function.Predicate;
-import lombok.Value;
-import org.apache.commons.lang3.StringUtils;
 
 @Value
 public class Result<T> implements Serializable {
@@ -16,23 +17,34 @@ public class Result<T> implements Serializable {
     final private boolean success;
     final private T data;
     final private String msg;
+    final private String code; // response code - usually error code
+
+    public Result(boolean success, T data, String msg, String code) {
+        this.success = success;
+        this.data = data;
+        this.msg = msg;
+        this.code = code;
+    }
 
     public Result(boolean success, T data, String msg) {
         this.success = success;
         this.data = data;
         this.msg = msg;
+        this.code = StringUtils.EMPTY;
     }
 
     public Result(boolean success, String msg) {
         this.success = success;
         this.data = null;
         this.msg = msg;
+        this.code = StringUtils.EMPTY;
     }
 
     public Result(boolean success, T data) {
         this.success = success;
         this.data = data;
         this.msg = StringUtils.EMPTY;
+        this.code = StringUtils.EMPTY;
     }
 
     public boolean isSuccess() {
