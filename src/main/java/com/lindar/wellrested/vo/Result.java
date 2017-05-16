@@ -97,7 +97,7 @@ public class Result<T> implements Serializable {
     public T orElse(T other) {
         return isSuccessAndNotNull() ? data : other;
     }
-
+    
     /**
      * The Runnable function here has NOTHING to do with Threads! It's just a functional interface that allows you to
      * run a piece of code (function) when the result data is null and success is false - a function that receives and returns nothing (void)
