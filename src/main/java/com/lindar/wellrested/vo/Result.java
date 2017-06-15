@@ -1,7 +1,7 @@
 package com.lindar.wellrested.vo;
 
+import lombok.Builder;
 import lombok.Value;
-import org.apache.commons.lang3.StringUtils;
 
 import java.io.Serializable;
 import java.util.Objects;
@@ -10,6 +10,7 @@ import java.util.function.Function;
 import java.util.function.Predicate;
 
 @Value
+@Builder
 public class Result<T> implements Serializable {
 
     private static final long serialVersionUID = 1987956456765489787L;
@@ -18,34 +19,6 @@ public class Result<T> implements Serializable {
     final private T data;
     final private String msg;
     final private String code; // response code - usually error code
-
-    public Result(boolean success, T data, String msg, String code) {
-        this.success = success;
-        this.data = data;
-        this.msg = msg;
-        this.code = code;
-    }
-
-    public Result(boolean success, T data, String msg) {
-        this.success = success;
-        this.data = data;
-        this.msg = msg;
-        this.code = StringUtils.EMPTY;
-    }
-
-    public Result(boolean success, String msg) {
-        this.success = success;
-        this.data = null;
-        this.msg = msg;
-        this.code = StringUtils.EMPTY;
-    }
-
-    public Result(boolean success, T data) {
-        this.success = success;
-        this.data = data;
-        this.msg = StringUtils.EMPTY;
-        this.code = StringUtils.EMPTY;
-    }
 
     public boolean isSuccess() {
         return success;
@@ -58,7 +31,7 @@ public class Result<T> implements Serializable {
     public Result<T> filter(Predicate<? super T> predicate) {
         Objects.requireNonNull(predicate);
         if (isSuccessAndNotNull()) {
-            return predicate.test(data) ? this : ResultFactory.getFailResult(msg);
+            return predicate.test(data) ? this : ResultFactory.failed(msg);
         } else {
             return this;
         }
@@ -67,9 +40,9 @@ public class Result<T> implements Serializable {
     public <U> Result<U> map(Function<? super T, ? extends U> mapper) {
         Objects.requireNonNull(mapper);
         if (isSuccessAndNotNull()) {
-            return ResultFactory.getSuccessResult(mapper.apply(data));
+            return ResultFactory.successful(mapper.apply(data));
         } else {
-            return ResultFactory.getFailResult(msg);
+            return ResultFactory.failed(msg);
         }
     }
 
@@ -78,7 +51,7 @@ public class Result<T> implements Serializable {
         if (isSuccessAndNotNull()) {
             return Objects.requireNonNull(mapper.apply(data));
         } else {
-            return ResultFactory.getFailResult(msg);
+            return ResultFactory.failed(msg);
         }
     }
 

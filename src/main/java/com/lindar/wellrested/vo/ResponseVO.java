@@ -1,17 +1,22 @@
 package com.lindar.wellrested.vo;
 
-import com.google.gson.*;
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
+import com.google.gson.JsonArray;
+import com.google.gson.JsonDeserializer;
+import com.google.gson.JsonElement;
+import com.google.gson.JsonObject;
 import com.google.gson.reflect.TypeToken;
-import lombok.Data;
-import org.apache.commons.lang3.StringUtils;
 import com.lindar.wellrested.util.DateDeserializer;
 import com.lindar.wellrested.xml.WellRestedXMLUtil;
+import lombok.Data;
+import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang3.StringUtils;
 
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
-import lombok.extern.slf4j.Slf4j;
 
 @Data
 @Slf4j
@@ -70,7 +75,7 @@ public class ResponseVO implements Serializable {
         } catch (Exception ex) {
             log.info("castJsonResponseToResult: error casting response to result - {}", ex);
         }
-        return ResultFactory.getFailResult("Error casting response to a Result object");
+        return ResultFactory.failed("Error casting response to a Result object");
     }
 
     public <T> List<T> castAsList(Class<T> clazz) {

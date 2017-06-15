@@ -3,45 +3,41 @@ package com.lindar.wellrested.vo;
 
 public class ResultFactory {
 
-    public static <T> Result<T> getSuccessResult(T data) {
-        return new Result<>(true, data);
+    public static <T> Result<T> successful(T data) {
+        return Result.<T>builder().success(true).data(data).build();
     }
 
-    public static <T> Result<T> getSuccessResult(T data, String msg) {
-        return new Result<>(true, data, msg);
+    public static <T> Result<T> successful(T data, String msg) {
+        return Result.<T>builder().success(true).data(data).msg(msg).build();
     }
 
-    public static <T> Result<T> getSuccessResult(T data, String msg, String code) {
-        return new Result<>(true, data, msg, code);
+    public static <T> Result<T> successful(T data, String msg, String code) {
+        return Result.<T>builder().success(true).data(data).msg(msg).code(code).build();
     }
 
-    public static <T> Result<T> getSuccessResultMsg(String msg) {
-        return new Result<>(true, msg);
+    public static <T> Result<T> successfulMsg(String msg) {
+        return Result.<T>builder().success(true).msg(msg).build();
     }
 
-    public static <T> Result<T> getSuccessResultMsg(String msg, String code) {
-        return new Result<>(true, null, msg, code);
+    public static <T> Result<T> successful(String msg, String code) {
+        return Result.<T>builder().success(true).msg(msg).code(code).build();
     }
 
 
-    public static <T> Result<T> getFailResult(String msg) {
-        return new Result<>(false, msg);
+    public static <T> Result<T> failed(String msg) {
+        return Result.<T>builder().success(false).msg(msg).build();
     }
 
-    public static <T> Result<T> getFailResult(String msg, String code) {
-        return new Result<>(false, null, msg, code);
-    }
-    
-    public static <T> Result<T> getFailResult(T data, String msg) {
-        return new Result<>(false, data, msg);
+    public static <T> Result<T> failed(String msg, String code) {
+        return Result.<T>builder().success(false).msg(msg).code(code).build();
     }
 
-    public static <T> Result<T> getFailResult(T data, String msg, String code) {
-        return new Result<>(false, data, msg, code);
+    public static <T> Result<T> failed(T data, String msg) {
+        return Result.<T>builder().success(false).msg(msg).data(data).build();
     }
 
-    public static <T> Result<T> getNotFoundResult() {
-        return new Result<>(false, "Not Found");
+    public static <T> Result<T> failed(T data, String msg, String code) {
+        return Result.<T>builder().success(false).data(data).msg(msg).code(code).build();
     }
 
     private ResultFactory() {
