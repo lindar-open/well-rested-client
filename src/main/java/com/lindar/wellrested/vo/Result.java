@@ -20,8 +20,14 @@ public class Result<T> implements Serializable {
     final private String msg;
     final private String code; // response code - usually error code
 
+    final private boolean visible; // the result message is visible for the end user
+
     public boolean isSuccess() {
         return success;
+    }
+
+    public boolean isVisible() {
+        return visible;
     }
 
     public boolean isSuccessAndNotNull() {
