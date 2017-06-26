@@ -1,9 +1,11 @@
 package com.lindar.wellrested;
 
+import com.google.gson.ExclusionStrategy;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.JsonDeserializer;
 import com.google.gson.JsonSerializer;
+import com.lindar.wellrested.util.BasicExclusionStrategy;
 import com.lindar.wellrested.util.DateDeserializer;
 import com.lindar.wellrested.util.StringDateSerializer;
 import com.lindar.wellrested.util.WellRestedUtil;
@@ -35,6 +37,7 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 @Slf4j
@@ -47,6 +50,10 @@ public class WellRestedRequest {
     private JsonSerializer<Date> dateSerializer = new StringDateSerializer();
     private JsonDeserializer<Date> dateDeserializer = new DateDeserializer();
     private String dateFormat = StringUtils.EMPTY;
+
+    private ExclusionStrategy exclusionStrategy;
+    private List<String> excludedFieldNames;
+    private Set<String> excludedClassNames;
 
     private WellRestedRequest(URI uri) {
         this.uri = uri;
@@ -173,6 +180,38 @@ public class WellRestedRequest {
      */
     public WellRestedRequest setDateFormat(String dateFormat) {
         this.dateFormat = dateFormat;
+        return this;
+    }
+
+    /**
+     * Use this method to provide a Gson serialisation exclusion strategy.
+     * If you just want to exlude some field names or a class you can use the excludeFields and excludeClasses methods easier.
+     * Keep in mind that this exclusion strategy overrides the other ones
+     * @param exclusionStrategy
+     * @return
+     */
+    public WellRestedRequest setExclusionStrategy(ExclusionStrategy exclusionStrategy) {
+        this.exclusionStrategy = exclusionStrategy;
+        return this;
+    }
+
+    /**
+     * Use this method to exclude some field names from the Gson serialisation process
+     * @param fieldNames
+     * @return
+     */
+    public WellRestedRequest excludeFields(List<String> fieldNames) {
+        this.excludedFieldNames = fieldNames;
+        return this;
+    }
+
+    /**
+     * Use this method to exclude some class names from the Gson serialisation process
+     * @param classNames
+     * @return
+     */
+    public WellRestedRequest excludeClasses(Set<String> classNames) {
+        this.excludedClassNames = classNames;
         return this;
     }
     
@@ -607,7 +646,7 @@ public class WellRestedRequest {
             }
             return WellRestedUtil.buildResponseVO(httpResponse, uri.toString());
         } catch (IOException ex) {
-            log.error("Error occured after executing the GET request: ", ex);
+            log.error("Error occurred after executing the GET request: ", ex);
         }
         return WellRestedUtil.buildErrorResponseVO(uri.toString());
     }
@@ -624,6 +663,13 @@ public class WellRestedRequest {
         } else {
             gsonBuilder.setDateFormat(this.dateFormat);
         }
+
+        if (this.exclusionStrategy != null) {
+            gsonBuilder.setExclusionStrategies(exclusionStrategy);
+        } else if (this.excludedFieldNames != null || this.excludedClassNames != null) {
+            gsonBuilder.setExclusionStrategies(new BasicExclusionStrategy(excludedClassNames, excludedFieldNames));
+        }
+
         return gsonBuilder.create();
     }
 
