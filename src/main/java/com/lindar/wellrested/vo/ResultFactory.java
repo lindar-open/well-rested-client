@@ -40,6 +40,14 @@ public class ResultFactory {
         return Result.<T>builder().success(false).data(data).msg(msg).code(code).build();
     }
 
+    public static <T, U> Result<T> failed(Result<U> anotherResult) {
+        return Result.<T>builder().success(false)
+                .msg(anotherResult.getMsg())
+                .code(anotherResult.getCode())
+                .visible(anotherResult.isVisible())
+                .build();
+    }
+
     private ResultFactory() {
     }
 }

@@ -78,6 +78,7 @@ public class ResponseVO implements Serializable {
         return ResultFactory.failed("Error casting response to a Result object");
     }
 
+    @Deprecated
     public <T> List<T> castAsList(Class<T> clazz) {
         GsonBuilder gsonBuilder = new GsonBuilder();
         DateDeserializer dateDeserializer = new DateDeserializer();
