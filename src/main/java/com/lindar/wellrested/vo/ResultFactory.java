@@ -48,6 +48,14 @@ public class ResultFactory {
                 .build();
     }
 
+    public static <T, U> Result<T> copyWithoutData(Result<U> anotherResult) {
+        return Result.<T>builder().success(anotherResult.isSuccess())
+                .msg(anotherResult.getMsg())
+                .code(anotherResult.getCode())
+                .visible(anotherResult.isVisible())
+                .build();
+    }
+
     private ResultFactory() {
     }
 }
