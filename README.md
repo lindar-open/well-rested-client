@@ -3,6 +3,8 @@
 Want a nice rest client that just works without too much headache? 
 Try this well rested and ready to go client built on top of apache http client
 
+Check out the [Releases](https://github.com/lindar-open/well-rested-client/releases) page for detailed info about each release. 
+
 Examples:
 
 **GET Request:**
@@ -67,6 +69,6 @@ Usage:
 <dependency>
     <groupId>com.lindar</groupId>
     <artifactId>well-rested-client</artifactId>
-    <version>1.0.1</version>
+    <version>1.1.0</version>
 </dependency>
 ```
