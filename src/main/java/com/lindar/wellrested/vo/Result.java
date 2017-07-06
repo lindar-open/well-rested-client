@@ -76,6 +76,10 @@ public class Result<T> implements Serializable {
     public T orElse(T other) {
         return isSuccessAndNotNull() ? data : other;
     }
+
+    public Result<T> orElseProcessResult(Function<Result<T>, Result<T>> resultProcessor) {
+        return isSuccessAndNotNull() ? this : resultProcessor.apply(this);
+    }
     
     /**
      * The Runnable function here has NOTHING to do with Threads! It's just a functional interface that allows you to
