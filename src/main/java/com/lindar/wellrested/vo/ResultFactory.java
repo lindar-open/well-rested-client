@@ -3,6 +3,12 @@ package com.lindar.wellrested.vo;
 
 public class ResultFactory {
 
+    public static <T, U> Result<T> successful(T newData, Result<U> anotherResult) {
+        return Result.<T>builder()
+                .success(true).visible(anotherResult.isVisible()).code(anotherResult.getCode())
+                .data(newData).build();
+    }
+
     public static <T> Result<T> successful(T data) {
         return Result.<T>builder().success(true).data(data).build();
     }

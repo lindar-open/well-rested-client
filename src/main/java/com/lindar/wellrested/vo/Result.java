@@ -37,7 +37,7 @@ public class Result<T> implements Serializable {
     public Result<T> filter(Predicate<? super T> predicate) {
         Objects.requireNonNull(predicate);
         if (isSuccessAndNotNull()) {
-            return predicate.test(data) ? this : ResultFactory.failed(msg);
+            return predicate.test(data) ? this : ResultFactory.failed(this);
         } else {
             return this;
         }
@@ -46,9 +46,9 @@ public class Result<T> implements Serializable {
     public <U> Result<U> map(Function<? super T, ? extends U> mapper) {
         Objects.requireNonNull(mapper);
         if (isSuccessAndNotNull()) {
-            return ResultFactory.successful(mapper.apply(data));
+            return ResultFactory.successful(mapper.apply(data), this);
         } else {
-            return ResultFactory.failed(msg);
+            return ResultFactory.failed(this);
         }
     }
 
@@ -57,7 +57,7 @@ public class Result<T> implements Serializable {
         if (isSuccessAndNotNull()) {
             return Objects.requireNonNull(mapper.apply(data));
         } else {
-            return ResultFactory.failed(msg);
+            return ResultFactory.failed(this);
         }
     }
 
