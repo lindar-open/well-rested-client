@@ -25,7 +25,7 @@ public class ResultFactory {
         return Result.<T>builder().success(true).msg(msg).build();
     }
 
-    public static <T> Result<T> successful(String msg, String code) {
+    public static <T> Result<T> successfulMsg(String msg, String code) {
         return Result.<T>builder().success(true).msg(msg).code(code).build();
     }
 
@@ -60,6 +60,12 @@ public class ResultFactory {
                 .code(anotherResult.getCode())
                 .visible(anotherResult.isVisible())
                 .build();
+    }
+
+    public static <T, U> Result<T> copyAndOverrideData(Result<U> result, T data) {
+        return Result.<T>builder()
+                .code(result.getCode()).msg(result.getMsg()).data(data)
+                .success(result.isSuccess()).visible(result.isVisible()).build();
     }
 
     private ResultFactory() {
