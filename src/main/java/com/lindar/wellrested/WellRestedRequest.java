@@ -644,11 +644,11 @@ public class WellRestedRequest {
             } else {
                 httpResponse = request.execute().returnResponse();
             }
-            return WellRestedUtil.buildResponseVO(httpResponse, uri.toString());
+            return WellRestedUtil.buildWellRestedResponse(httpResponse, uri.toString());
         } catch (IOException ex) {
             log.error("Error occurred after executing the GET request: ", ex);
         }
-        return WellRestedUtil.buildErrorResponseVO(uri.toString());
+        return WellRestedUtil.buildErrorWellRestedResponse(uri.toString());
     }
 
     private List<Header> buildHeaders(Map<String, String> headerMap) {

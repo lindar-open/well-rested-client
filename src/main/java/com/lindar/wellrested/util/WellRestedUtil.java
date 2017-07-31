@@ -1,13 +1,5 @@
 package com.lindar.wellrested.util;
 
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
-import java.util.List;
-import java.util.Map;
-import java.util.stream.Collectors;
-
 import com.lindar.wellrested.vo.WellRestedResponse;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
@@ -17,39 +9,19 @@ import org.apache.http.ParseException;
 import org.apache.http.message.BasicHeader;
 import org.apache.http.util.EntityUtils;
 
-/**
- *
- * @author iulian
- */
+import java.io.IOException;
+import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
+
 @Slf4j
 public final class WellRestedUtil {
 
-    public static WellRestedResponse legacyBuildResponseVO(HttpResponse httpResponse) {
-        WellRestedResponse response = new WellRestedResponse();
-        fillStatusCodeForResponse(response, httpResponse);
-        InputStream responseContentStream = null;
-        try {
-            responseContentStream = httpResponse.getEntity().getContent();
-        } catch (IOException | IllegalStateException ex) {
-            log.error("Error trying to get response content: ", ex);
-        }
-        if (responseContentStream == null) {
-            return response;
-        }
-
-        try (BufferedReader reader = new BufferedReader(new InputStreamReader(responseContentStream))) {
-            response.setServerResponse(reader.lines().collect(Collectors.joining()));
-        } catch (IOException ex) {
-            log.error("Error submitting the request or processing the response: ", ex);
-        }
-        return response;
+    public static WellRestedResponse buildWellRestedResponse(HttpResponse httpResponse) {
+        return buildWellRestedResponse(httpResponse, StringUtils.EMPTY);
     }
 
-    public static WellRestedResponse buildResponseVO(HttpResponse httpResponse) {
-        return buildResponseVO(httpResponse, StringUtils.EMPTY);
-    }
-
-    public static WellRestedResponse buildResponseVO(HttpResponse httpResponse, String url) {
+    public static WellRestedResponse buildWellRestedResponse(HttpResponse httpResponse, String url) {
         try {
             WellRestedResponse wellRestedResponse = new WellRestedResponse();
             wellRestedResponse.setCurrentURI(url);
@@ -67,10 +39,10 @@ public final class WellRestedUtil {
         } catch (IOException | ParseException ex) {
             log.error("Error occured while building the WellRestedResponse: ", ex);
         }
-        return buildErrorResponseVO(url);
+        return buildErrorWellRestedResponse(url);
     }
 
-    public static WellRestedResponse buildErrorResponseVO(String url) {
+    public static WellRestedResponse buildErrorWellRestedResponse(String url) {
         WellRestedResponse wellRestedResponse = new WellRestedResponse();
         wellRestedResponse.setCurrentURI(url);
         wellRestedResponse.setServerResponse(StringUtils.EMPTY);
