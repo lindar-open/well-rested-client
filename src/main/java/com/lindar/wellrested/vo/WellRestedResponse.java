@@ -47,7 +47,7 @@ public class WellRestedResponse implements Serializable {
     }
 
 
-    private XmlResponseMapper fromXml;
+    private XmlResponseMapper fromXml = new XmlResponseMapper();
 
     /**
      * Allows you to manage XML responses and map them to Java objects
@@ -64,7 +64,7 @@ public class WellRestedResponse implements Serializable {
 
 
 
-    private JsonResponseMapper fromJson;
+    private JsonResponseMapper fromJson = new JsonResponseMapper();
 
     /**
      * Allows you to manage JSON responses and map them to Java objects
@@ -105,7 +105,7 @@ public class WellRestedResponse implements Serializable {
     }
 
 
-    private ResultResponseMapper fromResult;
+    private ResultResponseMapper fromResult = new ResultResponseMapper();
 
     /**
      * NOTE: Use this method only if your json response is of type: {@link Result}.
