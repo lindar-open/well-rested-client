@@ -131,7 +131,7 @@ public class WellRestedResponse implements Serializable {
          * If your collections is even deeper than this, you'll have to build your own ParameterizedType
          */
         public <T, U> ResultResponseMapper registerDeepCollectionType(Class<T> wrapper, Class<U> inner) {
-            this.type = new ResultWrapperType<>(new CollectionWrapperType<>(wrapper, inner));
+            this.type = new ResultWrapperType(new CollectionWrapperType(wrapper, inner));
             return this;
         }
 

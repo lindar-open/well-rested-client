@@ -5,9 +5,9 @@ import com.lindar.wellrested.vo.Result;
 import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
 
-public class ResultWrapperType<T, U> implements ParameterizedType {
-    private final CollectionWrapperType<T, U> inner;
-    public ResultWrapperType(CollectionWrapperType<T, U> inner) {
+public class ResultWrapperType implements ParameterizedType {
+    private final Type inner;
+    public ResultWrapperType(Type inner) {
         this.inner = inner;
     }
     public Type[] getActualTypeArguments() {

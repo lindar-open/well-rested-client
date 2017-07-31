@@ -3,10 +3,10 @@ package com.lindar.wellrested.util.type;
 import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
 
-public class CollectionWrapperType<T, U> implements ParameterizedType {
-    private final Class<T> wrapper;
-    private final Class<U> inner;
-    public CollectionWrapperType(Class<T> wrapper, Class<U> inner) {
+public class CollectionWrapperType implements ParameterizedType {
+    private final Type wrapper;
+    private final Type inner;
+    public CollectionWrapperType(Type wrapper, Type inner) {
         this.wrapper = wrapper;
         this.inner = inner;
     }
