@@ -9,7 +9,7 @@ import com.lindar.wellrested.util.BasicExclusionStrategy;
 import com.lindar.wellrested.util.DateDeserializer;
 import com.lindar.wellrested.util.StringDateSerializer;
 import com.lindar.wellrested.util.WellRestedUtil;
-import com.lindar.wellrested.vo.ResponseVO;
+import com.lindar.wellrested.vo.WellRestedResponse;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.http.Header;
@@ -219,15 +219,15 @@ public class WellRestedRequest {
     /**
      * ****************** GET ******************************************************************
      */
-    public ResponseVO get() {
+    public WellRestedResponse get() {
         return get(new ArrayList<>(0));
     }
 
-    public ResponseVO get(Map<String, String> headers) {
+    public WellRestedResponse get(Map<String, String> headers) {
         return submitRequest(Request.Get(uri), null, buildHeaders(headers));
     }
 
-    public ResponseVO get(List<Header> headers) {
+    public WellRestedResponse get(List<Header> headers) {
         return submitRequest(Request.Get(uri), null, headers);
     }
 
@@ -240,7 +240,7 @@ public class WellRestedRequest {
      *
      * @return
      */
-    public ResponseVO post() {
+    public WellRestedResponse post() {
         return submitRequest(Request.Post(uri), null, null);
     }
 
@@ -253,7 +253,7 @@ public class WellRestedRequest {
      * @param contentType
      * @return
      */
-    public ResponseVO post(String content, ContentType contentType) {
+    public WellRestedResponse post(String content, ContentType contentType) {
         return post(content, contentType, null);
     }
 
@@ -266,7 +266,7 @@ public class WellRestedRequest {
      * @param headers
      * @return
      */
-    public ResponseVO post(String content, ContentType contentType, Map<String, String> headers) {
+    public WellRestedResponse post(String content, ContentType contentType, Map<String, String> headers) {
         HttpEntity httpEntity = new StringEntity(content, contentType);
         if (headers != null && !headers.isEmpty()) {
             return post(httpEntity, WellRestedUtil.createHttpHeadersFromMap(headers));
@@ -280,7 +280,7 @@ public class WellRestedRequest {
      * @param formParams
      * @return
      */
-    public ResponseVO post(List<NameValuePair> formParams) {
+    public WellRestedResponse post(List<NameValuePair> formParams) {
         return post(formParams, new HashMap<>(0));
     }
 
@@ -292,14 +292,14 @@ public class WellRestedRequest {
      * @param headers
      * @return
      */
-    public ResponseVO post(Map<String, String> formParams, Map<String, String> headers) {
+    public WellRestedResponse post(Map<String, String> formParams, Map<String, String> headers) {
         HttpEntity httpEntity;
         try {
             List<NameValuePair> formParamsList = formParams.entrySet().stream().map(entry -> new BasicNameValuePair(entry.getKey(), entry.getValue())).collect(Collectors.toList());
             httpEntity = new UrlEncodedFormEntity(formParamsList);
         } catch (UnsupportedEncodingException ex) {
             log.error("post: ", ex);
-            return new ResponseVO();
+            return new WellRestedResponse();
         }
         if (headers != null && !headers.isEmpty()) {
             return post(httpEntity, WellRestedUtil.createHttpHeadersFromMap(headers));
@@ -315,13 +315,13 @@ public class WellRestedRequest {
      * @param headers
      * @return
      */
-    public ResponseVO post(List<NameValuePair> formParams, Map<String, String> headers) {
+    public WellRestedResponse post(List<NameValuePair> formParams, Map<String, String> headers) {
         HttpEntity httpEntity;
         try {
             httpEntity = new UrlEncodedFormEntity(formParams);
         } catch (UnsupportedEncodingException ex) {
             log.error("post: ", ex);
-            return new ResponseVO();
+            return new WellRestedResponse();
         }
         if (headers != null && !headers.isEmpty()) {
             return post(httpEntity, WellRestedUtil.createHttpHeadersFromMap(headers));
@@ -335,7 +335,7 @@ public class WellRestedRequest {
      * @param json
      * @return
      */
-    public ResponseVO post(String json) {
+    public WellRestedResponse post(String json) {
         return post(json, new HashMap<>(0));
     }
 
@@ -347,7 +347,7 @@ public class WellRestedRequest {
      * @param headers
      * @return
      */
-    public ResponseVO post(String json, Map<String, String> headers) {
+    public WellRestedResponse post(String json, Map<String, String> headers) {
         HttpEntity httpEntity = new StringEntity(json, ContentType.APPLICATION_JSON);
         if (headers != null && !headers.isEmpty()) {
             return post(httpEntity, WellRestedUtil.createHttpHeadersFromMap(headers));
@@ -363,7 +363,7 @@ public class WellRestedRequest {
      * @param object
      * @return
      */
-    public <T> ResponseVO post(T object) {
+    public <T> WellRestedResponse post(T object) {
         return post(object, null);
     }
 
@@ -376,7 +376,7 @@ public class WellRestedRequest {
      * @param headers
      * @return
      */
-    public <T> ResponseVO post(T object, Map<String, String> headers) {
+    public <T> WellRestedResponse post(T object, Map<String, String> headers) {
         Gson gson = buildGson();
         ContentType contentType = ContentType.APPLICATION_JSON;
         HttpEntity httpEntity = new StringEntity(gson.toJson(object), contentType);
@@ -392,7 +392,7 @@ public class WellRestedRequest {
      * @param entity
      * @return
      */
-    public ResponseVO post(HttpEntity entity) {
+    public WellRestedResponse post(HttpEntity entity) {
         return post(entity, new ArrayList<>(0));
     }
 
@@ -403,7 +403,7 @@ public class WellRestedRequest {
      * @param headers
      * @return
      */
-    public ResponseVO post(HttpEntity httpEntity, List<Header> headers) {
+    public WellRestedResponse post(HttpEntity httpEntity, List<Header> headers) {
         return submitRequest(Request.Post(uri), httpEntity, headers);
     }
 
@@ -414,7 +414,7 @@ public class WellRestedRequest {
      * @param headers
      * @return
      */
-    public ResponseVO post(Map<String, String> headers) {
+    public WellRestedResponse post(Map<String, String> headers) {
         return submitRequest(Request.Post(uri), null, WellRestedUtil.createHttpHeadersFromMap(headers));
     }
 
@@ -424,7 +424,7 @@ public class WellRestedRequest {
      * @param file
      * @return
      */
-    public ResponseVO post(File file) {
+    public WellRestedResponse post(File file) {
         return post(file, ContentType.MULTIPART_FORM_DATA, null);
     }
 
@@ -435,7 +435,7 @@ public class WellRestedRequest {
      * @param contentType
      * @return
      */
-    public ResponseVO post(File file, ContentType contentType) {
+    public WellRestedResponse post(File file, ContentType contentType) {
         return post(file, contentType, null);
     }
 
@@ -447,7 +447,7 @@ public class WellRestedRequest {
      * @param headers
      * @return
      */
-    public ResponseVO post(File file, ContentType contentType, List<Header> headers) {
+    public WellRestedResponse post(File file, ContentType contentType, List<Header> headers) {
         MultipartEntityBuilder builder = MultipartEntityBuilder.create();
         builder.addBinaryBody("file", file, contentType, file.getName());
         HttpEntity multipart = builder.build();
@@ -465,7 +465,7 @@ public class WellRestedRequest {
      *
      * @return
      */
-    public ResponseVO put() {
+    public WellRestedResponse put() {
         return submitRequest(Request.Put(uri), null, null);
     }
 
@@ -477,7 +477,7 @@ public class WellRestedRequest {
      * @param contentType
      * @return
      */
-    public ResponseVO put(String content, ContentType contentType) {
+    public WellRestedResponse put(String content, ContentType contentType) {
         return put(content, contentType, null);
     }
 
@@ -490,7 +490,7 @@ public class WellRestedRequest {
      * @param headers
      * @return
      */
-    public ResponseVO put(String content, ContentType contentType, Map<String, String> headers) {
+    public WellRestedResponse put(String content, ContentType contentType, Map<String, String> headers) {
         HttpEntity httpEntity = new StringEntity(content, contentType);
         if (headers != null && !headers.isEmpty()) {
             return put(httpEntity, WellRestedUtil.createHttpHeadersFromMap(headers));
@@ -504,7 +504,7 @@ public class WellRestedRequest {
      * @param formParams
      * @return
      */
-    public ResponseVO put(List<NameValuePair> formParams) {
+    public WellRestedResponse put(List<NameValuePair> formParams) {
         return put(formParams, new HashMap<>(0));
     }
 
@@ -516,13 +516,13 @@ public class WellRestedRequest {
      * @param headers
      * @return
      */
-    public ResponseVO put(List<NameValuePair> formParams, Map<String, String> headers) {
+    public WellRestedResponse put(List<NameValuePair> formParams, Map<String, String> headers) {
         HttpEntity httpEntity;
         try {
             httpEntity = new UrlEncodedFormEntity(formParams);
         } catch (UnsupportedEncodingException ex) {
             log.error("put: ", ex);
-            return new ResponseVO();
+            return new WellRestedResponse();
         }
         if (headers != null && !headers.isEmpty()) {
             return put(httpEntity, WellRestedUtil.createHttpHeadersFromMap(headers));
@@ -536,7 +536,7 @@ public class WellRestedRequest {
      * @param json
      * @return
      */
-    public ResponseVO put(String json) {
+    public WellRestedResponse put(String json) {
         return put(json, new HashMap<>(0));
     }
 
@@ -548,7 +548,7 @@ public class WellRestedRequest {
      * @param headers
      * @return
      */
-    public ResponseVO put(String json, Map<String, String> headers) {
+    public WellRestedResponse put(String json, Map<String, String> headers) {
         HttpEntity httpEntity = new StringEntity(json, ContentType.APPLICATION_JSON);
         if (headers != null && !headers.isEmpty()) {
             return put(httpEntity, WellRestedUtil.createHttpHeadersFromMap(headers));
@@ -564,7 +564,7 @@ public class WellRestedRequest {
      * @param object
      * @return
      */
-    public <T> ResponseVO put(T object) {
+    public <T> WellRestedResponse put(T object) {
         return put(object, null);
     }
 
@@ -577,7 +577,7 @@ public class WellRestedRequest {
      * @param headers
      * @return
      */
-    public <T> ResponseVO put(T object, Map<String, String> headers) {
+    public <T> WellRestedResponse put(T object, Map<String, String> headers) {
         Gson gson = buildGson();
         ContentType contentType = ContentType.APPLICATION_JSON;
         HttpEntity httpEntity = new StringEntity(gson.toJson(object), contentType);
@@ -593,7 +593,7 @@ public class WellRestedRequest {
      * @param entity
      * @return
      */
-    public ResponseVO put(HttpEntity entity) {
+    public WellRestedResponse put(HttpEntity entity) {
         return put(entity, new ArrayList<>(0));
     }
 
@@ -604,25 +604,25 @@ public class WellRestedRequest {
      * @param headers
      * @return
      */
-    public ResponseVO put(HttpEntity httpEntity, List<Header> headers) {
+    public WellRestedResponse put(HttpEntity httpEntity, List<Header> headers) {
         return submitRequest(Request.Put(uri), httpEntity, headers);
     }
 
     /**
      * ****************** DELETE ******************************************************************
      */
-    public ResponseVO delete() {
+    public WellRestedResponse delete() {
         return delete(null);
     }
 
-    public ResponseVO delete(List<Header> headers) {
+    public WellRestedResponse delete(List<Header> headers) {
         return submitRequest(Request.Delete(uri), null, headers);
     }
 
     /**
      * ****************** GENERAL ******************************************************************
      */
-    public ResponseVO submitRequest(Request request, HttpEntity httpEntity, List<Header> headers) {
+    public WellRestedResponse submitRequest(Request request, HttpEntity httpEntity, List<Header> headers) {
         try {
 
             if (httpEntity != null) {

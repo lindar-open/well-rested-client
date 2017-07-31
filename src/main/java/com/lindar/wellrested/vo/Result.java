@@ -1,7 +1,9 @@
 package com.lindar.wellrested.vo;
 
 import lombok.Builder;
-import lombok.Value;
+import lombok.EqualsAndHashCode;
+import lombok.Getter;
+import lombok.ToString;
 
 import java.io.Serializable;
 import java.util.Objects;
@@ -9,18 +11,22 @@ import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.function.Predicate;
 
-@Value
+@ToString
+@EqualsAndHashCode
 @Builder
 public class Result<T> implements Serializable {
 
     private static final long serialVersionUID = 1987956456765489787L;
 
     final private boolean success;
-    final private T data;
-    final private String msg;
-    final private String code; // response code - usually error code
-
     final private boolean visible; // the result message is visible for the end user
+
+    @Getter
+    final private T data;
+    @Getter
+    final private String msg;
+    @Getter
+    final private String code; // response code - usually error code
 
     public boolean isSuccess() {
         return success;
@@ -133,4 +139,5 @@ public class Result<T> implements Serializable {
         }
         return defaultVal;
     }
+
 }

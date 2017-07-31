@@ -6,7 +6,7 @@
 
     <groupId>com.lindar</groupId>
     <artifactId>well-rested-client</artifactId>
-    <version>1.1.3</version>
+    <version>1.2.0</version>
     
     <name>Well Rested Client</name>
     <description>A nice and easy java http client wrapper built on top of apache httpclient</description>
@@ -93,7 +93,7 @@
         <dependency>
             <groupId>org.projectlombok</groupId>
             <artifactId>lombok</artifactId>
-            <version>1.16.16</version>
+            <version>1.16.18</version>
         </dependency>
 
         <dependency>

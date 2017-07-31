@@ -7,6 +7,8 @@ import java.io.InputStreamReader;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
+
+import com.lindar.wellrested.vo.WellRestedResponse;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.http.Header;
@@ -14,7 +16,6 @@ import org.apache.http.HttpResponse;
 import org.apache.http.ParseException;
 import org.apache.http.message.BasicHeader;
 import org.apache.http.util.EntityUtils;
-import com.lindar.wellrested.vo.ResponseVO;
 
 /**
  *
@@ -23,8 +24,8 @@ import com.lindar.wellrested.vo.ResponseVO;
 @Slf4j
 public final class WellRestedUtil {
 
-    public static ResponseVO legacyBuildResponseVO(HttpResponse httpResponse) {
-        ResponseVO response = new ResponseVO();
+    public static WellRestedResponse legacyBuildResponseVO(HttpResponse httpResponse) {
+        WellRestedResponse response = new WellRestedResponse();
         fillStatusCodeForResponse(response, httpResponse);
         InputStream responseContentStream = null;
         try {
@@ -44,40 +45,40 @@ public final class WellRestedUtil {
         return response;
     }
 
-    public static ResponseVO buildResponseVO(HttpResponse httpResponse) {
+    public static WellRestedResponse buildResponseVO(HttpResponse httpResponse) {
         return buildResponseVO(httpResponse, StringUtils.EMPTY);
     }
 
-    public static ResponseVO buildResponseVO(HttpResponse httpResponse, String url) {
+    public static WellRestedResponse buildResponseVO(HttpResponse httpResponse, String url) {
         try {
-            ResponseVO responseVO = new ResponseVO();
-            responseVO.setCurrentURI(url);
+            WellRestedResponse wellRestedResponse = new WellRestedResponse();
+            wellRestedResponse.setCurrentURI(url);
 
             if (httpResponse.getEntity() != null) {
                 String responseContent = httpResponse.getEntity() != null 
                         ? EntityUtils.toString(httpResponse.getEntity()) 
                         : StringUtils.EMPTY;
-                responseVO.setServerResponse(responseContent);
+                wellRestedResponse.setServerResponse(responseContent);
             }
             
             int statusCode = httpResponse.getStatusLine().getStatusCode();
-            responseVO.setStatusCode(statusCode);
-            return responseVO;
+            wellRestedResponse.setStatusCode(statusCode);
+            return wellRestedResponse;
         } catch (IOException | ParseException ex) {
-            log.error("Error occured while building the ResponseVO: ", ex);
+            log.error("Error occured while building the WellRestedResponse: ", ex);
         }
         return buildErrorResponseVO(url);
     }
 
-    public static ResponseVO buildErrorResponseVO(String url) {
-        ResponseVO responseVO = new ResponseVO();
-        responseVO.setCurrentURI(url);
-        responseVO.setServerResponse(StringUtils.EMPTY);
-        responseVO.setStatusCode(500);
-        return responseVO;
+    public static WellRestedResponse buildErrorResponseVO(String url) {
+        WellRestedResponse wellRestedResponse = new WellRestedResponse();
+        wellRestedResponse.setCurrentURI(url);
+        wellRestedResponse.setServerResponse(StringUtils.EMPTY);
+        wellRestedResponse.setStatusCode(500);
+        return wellRestedResponse;
     }
 
-    public static void fillStatusCodeForResponse(ResponseVO response, HttpResponse httpResponse) {
+    public static void fillStatusCodeForResponse(WellRestedResponse response, HttpResponse httpResponse) {
         int responseStatusCode = httpResponse.getStatusLine().getStatusCode();
         if (responseStatusCode != 200) {
             log.warn("Server problem detected, response code: " + responseStatusCode);
