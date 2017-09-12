@@ -3,16 +3,11 @@ package com.lindar.wellrested.util;
 import com.lindar.wellrested.vo.WellRestedResponse;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
-import org.apache.http.Header;
 import org.apache.http.HttpResponse;
 import org.apache.http.ParseException;
-import org.apache.http.message.BasicHeader;
 import org.apache.http.util.EntityUtils;
 
 import java.io.IOException;
-import java.util.List;
-import java.util.Map;
-import java.util.stream.Collectors;
 
 @Slf4j
 public final class WellRestedUtil {
@@ -56,10 +51,6 @@ public final class WellRestedUtil {
             log.warn("Server problem detected, response code: " + responseStatusCode);
         }
         response.setStatusCode(responseStatusCode);
-    }
-
-    public static List<Header> createHttpHeadersFromMap(Map<String, String> headers) {
-        return headers.entrySet().stream().map(entry -> new BasicHeader(entry.getKey(), entry.getValue())).collect(Collectors.toList());
     }
 
     public static boolean validateProxy(String host, int port) {

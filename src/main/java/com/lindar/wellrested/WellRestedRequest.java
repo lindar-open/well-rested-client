@@ -269,7 +269,7 @@ public class WellRestedRequest {
     public WellRestedResponse post(String content, ContentType contentType, Map<String, String> headers) {
         HttpEntity httpEntity = new StringEntity(content, contentType);
         if (headers != null && !headers.isEmpty()) {
-            return post(httpEntity, WellRestedUtil.createHttpHeadersFromMap(headers));
+            return post(httpEntity, buildHeaders(headers));
         }
         return post(httpEntity);
     }
@@ -302,7 +302,7 @@ public class WellRestedRequest {
             return new WellRestedResponse();
         }
         if (headers != null && !headers.isEmpty()) {
-            return post(httpEntity, WellRestedUtil.createHttpHeadersFromMap(headers));
+            return post(httpEntity, buildHeaders(headers));
         }
         return post(httpEntity);
     }
@@ -324,7 +324,7 @@ public class WellRestedRequest {
             return new WellRestedResponse();
         }
         if (headers != null && !headers.isEmpty()) {
-            return post(httpEntity, WellRestedUtil.createHttpHeadersFromMap(headers));
+            return post(httpEntity, buildHeaders(headers));
         }
         return post(httpEntity);
     }
@@ -350,7 +350,7 @@ public class WellRestedRequest {
     public WellRestedResponse post(String json, Map<String, String> headers) {
         HttpEntity httpEntity = new StringEntity(json, ContentType.APPLICATION_JSON);
         if (headers != null && !headers.isEmpty()) {
-            return post(httpEntity, WellRestedUtil.createHttpHeadersFromMap(headers));
+            return post(httpEntity, buildHeaders(headers));
         }
         return post(httpEntity);
     }
@@ -381,7 +381,7 @@ public class WellRestedRequest {
         ContentType contentType = ContentType.APPLICATION_JSON;
         HttpEntity httpEntity = new StringEntity(gson.toJson(object), contentType);
         if (headers != null && !headers.isEmpty()) {
-            return post(httpEntity, WellRestedUtil.createHttpHeadersFromMap(headers));
+            return post(httpEntity, buildHeaders(headers));
         }
         return post(httpEntity);
     }
@@ -415,7 +415,7 @@ public class WellRestedRequest {
      * @return
      */
     public WellRestedResponse post(Map<String, String> headers) {
-        return submitRequest(Request.Post(uri), null, WellRestedUtil.createHttpHeadersFromMap(headers));
+        return submitRequest(Request.Post(uri), null, buildHeaders(headers));
     }
 
     /**
@@ -493,7 +493,7 @@ public class WellRestedRequest {
     public WellRestedResponse put(String content, ContentType contentType, Map<String, String> headers) {
         HttpEntity httpEntity = new StringEntity(content, contentType);
         if (headers != null && !headers.isEmpty()) {
-            return put(httpEntity, WellRestedUtil.createHttpHeadersFromMap(headers));
+            return put(httpEntity, buildHeaders(headers));
         }
         return put(httpEntity);
     }
@@ -525,7 +525,7 @@ public class WellRestedRequest {
             return new WellRestedResponse();
         }
         if (headers != null && !headers.isEmpty()) {
-            return put(httpEntity, WellRestedUtil.createHttpHeadersFromMap(headers));
+            return put(httpEntity, buildHeaders(headers));
         }
         return put(httpEntity);
     }
@@ -551,7 +551,7 @@ public class WellRestedRequest {
     public WellRestedResponse put(String json, Map<String, String> headers) {
         HttpEntity httpEntity = new StringEntity(json, ContentType.APPLICATION_JSON);
         if (headers != null && !headers.isEmpty()) {
-            return put(httpEntity, WellRestedUtil.createHttpHeadersFromMap(headers));
+            return put(httpEntity, buildHeaders(headers));
         }
         return put(httpEntity);
     }
@@ -582,7 +582,7 @@ public class WellRestedRequest {
         ContentType contentType = ContentType.APPLICATION_JSON;
         HttpEntity httpEntity = new StringEntity(gson.toJson(object), contentType);
         if (headers != null && !headers.isEmpty()) {
-            return put(httpEntity, WellRestedUtil.createHttpHeadersFromMap(headers));
+            return put(httpEntity, buildHeaders(headers));
         }
         return put(httpEntity);
     }
@@ -612,11 +612,55 @@ public class WellRestedRequest {
      * ****************** DELETE ******************************************************************
      */
     public WellRestedResponse delete() {
-        return delete(null);
+        return delete((List<Header>) null);
     }
 
     public WellRestedResponse delete(List<Header> headers) {
         return submitRequest(Request.Delete(uri), null, headers);
+    }
+
+
+    public WellRestedResponse delete(Map<String, String> headers) {
+        return submitRequest(Request.Delete(uri), null, buildHeaders(headers));
+    }
+
+    /**
+     * Standard method to DELETE an HttpEntity
+     *
+     * @param entity
+     * @return
+     */
+    public WellRestedResponse delete(HttpEntity entity) {
+        return delete(entity, (List<Header>) null);
+    }
+
+    public WellRestedResponse delete(HttpEntity httpEntity, List<Header> headers) {
+        return submitRequest(Request.Delete(uri), httpEntity, headers);
+    }
+
+    /**
+     * Convenient method to PUT an object directly (that will be converted into json) without having to work with HttpEntities
+     *
+     * @param <T> object to be converted into JSON and posted
+     * @return
+     */
+    public <T> WellRestedResponse delete(T object) {
+        return delete(object, null);
+    }
+
+    /**
+     * Convenient method to PUT an object directly (that will be converted into json) and a map of headers (key-value)
+     * without having to work with HttpEntities or Http Headers
+     *
+     * @param <T> object to be converted into JSON and posted
+     * @param headers
+     * @return
+     */
+    public <T> WellRestedResponse delete(T object, Map<String, String> headers) {
+        Gson gson = buildGson();
+        ContentType contentType = ContentType.APPLICATION_JSON;
+        HttpEntity httpEntity = new StringEntity(gson.toJson(object), contentType);
+        return submitRequest(Request.Delete(uri), httpEntity, buildHeaders(headers));
     }
 
     /**
@@ -652,7 +696,12 @@ public class WellRestedRequest {
     }
 
     private List<Header> buildHeaders(Map<String, String> headerMap) {
-        return headerMap.entrySet().stream().map(entry -> new BasicHeader(entry.getKey(), entry.getValue())).collect(Collectors.toList());
+        if (headerMap == null) {
+            return new ArrayList<>();
+        }
+        return headerMap.entrySet().stream()
+                .map(entry -> new BasicHeader(entry.getKey(), entry.getValue()))
+                .collect(Collectors.toList());
     }
     
     private Gson buildGson() {
