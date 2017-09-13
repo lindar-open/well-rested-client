@@ -1,15 +1,23 @@
 package com.lindar.wellrested.util;
 
 import com.lindar.wellrested.vo.WellRestedResponse;
+import lombok.experimental.UtilityClass;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.http.Header;
 import org.apache.http.HttpResponse;
 import org.apache.http.ParseException;
+import org.apache.http.message.BasicHeader;
 import org.apache.http.util.EntityUtils;
 
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
 
 @Slf4j
+@UtilityClass
 public final class WellRestedUtil {
 
     public static WellRestedResponse buildWellRestedResponse(HttpResponse httpResponse) {
@@ -61,6 +69,12 @@ public final class WellRestedUtil {
         }
     }
 
-    private WellRestedUtil() {
+    public static List<Header> buildHeaders(Map<String, String> headerMap) {
+        if (headerMap == null) {
+            return new ArrayList<>();
+        }
+        return headerMap.entrySet().stream()
+                .map(entry -> new BasicHeader(entry.getKey(), entry.getValue()))
+                .collect(Collectors.toList());
     }
 }
