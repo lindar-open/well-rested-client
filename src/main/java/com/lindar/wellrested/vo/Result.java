@@ -1,6 +1,5 @@
 package com.lindar.wellrested.vo;
 
-import lombok.Builder;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.ToString;
@@ -13,7 +12,6 @@ import java.util.function.Predicate;
 
 @ToString
 @EqualsAndHashCode
-@Builder
 public class Result<T> implements Serializable {
 
     private static final long serialVersionUID = 1987956456765489787L;
@@ -27,6 +25,19 @@ public class Result<T> implements Serializable {
     final private String msg;
     @Getter
     final private String code; // response code - usually error code
+
+    @java.beans.ConstructorProperties({"success", "visible", "data", "msg", "code"})
+    Result(boolean success, boolean visible, T data, String msg, String code) {
+        this.success = success;
+        this.visible = visible;
+        this.data = data;
+        this.msg = msg;
+        this.code = code;
+    }
+
+    public static <T> ResultBuilder<T> builder() {
+        return new ResultBuilder<>();
+    }
 
     public boolean isSuccess() {
         return success;
@@ -43,7 +54,7 @@ public class Result<T> implements Serializable {
     public Result<T> filter(Predicate<? super T> predicate) {
         Objects.requireNonNull(predicate);
         if (isSuccessAndNotNull()) {
-            return predicate.test(data) ? this : ResultFactory.failed(this);
+            return predicate.test(data) ? this : com.lindar.wellrested.vo.ResultBuilder.of(this).success(false).buildAndIgnoreData();
         } else {
             return this;
         }
@@ -52,9 +63,9 @@ public class Result<T> implements Serializable {
     public <U> Result<U> map(Function<? super T, ? extends U> mapper) {
         Objects.requireNonNull(mapper);
         if (isSuccessAndNotNull()) {
-            return ResultFactory.successful(mapper.apply(data), this);
+            return com.lindar.wellrested.vo.ResultBuilder.of(this).buildAndOverrideData(mapper.apply(data));
         } else {
-            return ResultFactory.failed(this);
+            return com.lindar.wellrested.vo.ResultBuilder.of(this).success(false).buildAndIgnoreData();
         }
     }
 
@@ -63,7 +74,7 @@ public class Result<T> implements Serializable {
         if (isSuccessAndNotNull()) {
             return Objects.requireNonNull(mapper.apply(data));
         } else {
-            return ResultFactory.failed(this);
+            return com.lindar.wellrested.vo.ResultBuilder.of(this).success(false).buildAndIgnoreData();
         }
     }
 
@@ -140,4 +151,48 @@ public class Result<T> implements Serializable {
         return defaultVal;
     }
 
+
+    static class ResultBuilder<T> {
+        private boolean success;
+        private boolean visible;
+        private T data;
+        private String msg;
+        private String code;
+
+        ResultBuilder() {
+        }
+
+        public ResultBuilder<T> success(boolean success) {
+            this.success = success;
+            return this;
+        }
+
+        public ResultBuilder<T> visible(boolean visible) {
+            this.visible = visible;
+            return this;
+        }
+
+        public ResultBuilder<T> data(T data) {
+            this.data = data;
+            return this;
+        }
+
+        public ResultBuilder<T> msg(String msg) {
+            this.msg = msg;
+            return this;
+        }
+
+        public ResultBuilder<T> code(String code) {
+            this.code = code;
+            return this;
+        }
+
+        public Result<T> build() {
+            return new Result<T>(success, visible, data, msg, code);
+        }
+
+        public String toString() {
+            return "Result.ResultBuilder(success=" + this.success + ", visible=" + this.visible + ", data=" + this.data + ", msg=" + this.msg + ", code=" + this.code + ")";
+        }
+    }
 }

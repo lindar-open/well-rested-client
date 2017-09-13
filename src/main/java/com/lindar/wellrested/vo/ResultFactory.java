@@ -1,6 +1,6 @@
 package com.lindar.wellrested.vo;
 
-
+@Deprecated
 public class ResultFactory {
 
     public static <T, U> Result<T> successful(T newData, Result<U> anotherResult) {
