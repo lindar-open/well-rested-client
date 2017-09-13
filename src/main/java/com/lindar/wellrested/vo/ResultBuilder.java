@@ -28,6 +28,11 @@ public class ResultBuilder<T> {
         return Result.<T>builder().success(true).data(data).build();
     }
 
+    /** This is a shortcut method for ResultBuilder.successful().data(data).msg(msg).build() */
+    public static <T> Result<T> successful(T data, String msg) {
+        return Result.<T>builder().success(true).data(data).msg(msg).build();
+    }
+
     /** This is a shortcut method for ResultBuilder.successful().msg(msg).build() */
     public static <T> Result<T> successfulWithoutData(String msg) {
         return Result.<T>builder().success(true).msg(msg).build();
@@ -40,6 +45,11 @@ public class ResultBuilder<T> {
 
     public ResultBuilder<T> success(boolean success) {
         resultBuilder.success(success);
+        return this;
+    }
+
+    public ResultBuilder<T> data(T data) {
+        resultBuilder.data(data);
         return this;
     }
 
