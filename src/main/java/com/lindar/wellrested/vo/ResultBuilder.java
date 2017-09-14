@@ -23,6 +23,10 @@ public class ResultBuilder<T> {
         return new ResultBuilder<>(Result.<T>builder().success(false));
     }
 
+    public static <T> ResultBuilder<T> empty() {
+        return new ResultBuilder<>(Result.<T>builder());
+    }
+
     /** This is a shortcut method for ResultBuilder.successful().data(data).build() */
     public static <T> Result<T> successful(T data) {
         return Result.<T>builder().success(true).data(data).build();
@@ -50,6 +54,11 @@ public class ResultBuilder<T> {
 
     public ResultBuilder<T> data(T data) {
         resultBuilder.data(data);
+        return this;
+    }
+
+    public ResultBuilder<T> visible(boolean visible) {
+        resultBuilder.visible(visible);
         return this;
     }
 

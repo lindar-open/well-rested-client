@@ -43,12 +43,20 @@ public class Result<T> implements Serializable {
         return success;
     }
 
+    public boolean isFailed() {
+        return !success;
+    }
+
     public boolean isVisible() {
         return visible;
     }
 
     public boolean isSuccessAndNotNull() {
         return success && data != null;
+    }
+
+    public boolean isFailedAndNull() {
+        return !success && data == null;
     }
 
     public Result<T> filter(Predicate<? super T> predicate) {
