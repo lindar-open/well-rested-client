@@ -3,6 +3,7 @@ package com.lindar.wellrested.vo;
 import com.google.gson.GsonBuilder;
 import com.google.gson.JsonDeserializer;
 import com.google.gson.reflect.TypeToken;
+import com.lindar.wellrested.GsonCustomiser;
 import com.lindar.wellrested.util.DateDeserializer;
 import com.lindar.wellrested.util.type.CollectionWrapperType;
 import com.lindar.wellrested.util.type.ResultWrapperType;
@@ -36,10 +37,11 @@ public class WellRestedResponse implements Serializable {
 
     @Getter @Setter
     private String currentURI;
-
-
+    
     @Setter
     private List<String> dateFormats;
+
+    private GsonCustomiser gsonCustomiser;
 
     public WellRestedResponse setDateFormat(String format) {
         this.dateFormats = Collections.singletonList(format);
@@ -85,6 +87,11 @@ public class WellRestedResponse implements Serializable {
         public <K> JsonResponseMapper registerDeserializer(Class<K> deserializedObjClass, JsonDeserializer<K> deserializer) {
             this.deserializedObjClass = deserializedObjClass;
             this.deserializer = deserializer;
+            return this;
+        }
+
+        public JsonResponseMapper gsonCustomiser(GsonCustomiser gsonCustomiser){
+            setGsonCustomiser(gsonCustomiser);
             return this;
         }
 
@@ -166,7 +173,17 @@ public class WellRestedResponse implements Serializable {
             dateDeserializer = new DateDeserializer();
         }
         gsonBuilder.registerTypeAdapter(Date.class, dateDeserializer);
+
+        if(gsonCustomiser != null){
+            gsonCustomiser.customise(gsonBuilder);
+        }
+
         return gsonBuilder;
+    }
+
+    private WellRestedResponse setGsonCustomiser(GsonCustomiser gsonCustomiser){
+        this.gsonCustomiser = gsonCustomiser;
+        return this;
     }
 
     /**

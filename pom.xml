@@ -33,7 +33,7 @@
         <developerConnection>scm:git:git@github.com:lindar-open/well-rested-client.git</developerConnection>
         <url>https://github.com/lindar-open/well-rested-client.git</url>
     </scm>
-    
+
     <distributionManagement>
         <snapshotRepository>
             <id>ossrh</id>

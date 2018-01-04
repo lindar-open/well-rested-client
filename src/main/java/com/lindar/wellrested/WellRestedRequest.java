@@ -44,8 +44,10 @@ public class WellRestedRequest {
 
     private List<Header> globalHeaders;
 
+    private GsonCustomiser gsonCustomiser;
+
     WellRestedRequest(URI uri, Credentials credentials, HttpHost proxy, JsonSerializer<Date> dateSerializer, JsonDeserializer<Date> dateDeserializer,
-                      String dateFormat, ExclusionStrategy exclusionStrategy, List<String> excludedFieldNames, Set<String> excludedClassNames, List<Header> globalHeaders) {
+                      String dateFormat, ExclusionStrategy exclusionStrategy, List<String> excludedFieldNames, Set<String> excludedClassNames, List<Header> globalHeaders, GsonCustomiser gsonCustomiser) {
         this.uri = uri;
         this.credentials = credentials;
         this.proxy = proxy;
@@ -56,6 +58,7 @@ public class WellRestedRequest {
         this.excludedFieldNames = excludedFieldNames;
         this.excludedClassNames = excludedClassNames;
         this.globalHeaders = globalHeaders;
+        this.gsonCustomiser = gsonCustomiser;
     }
 
     public static WellRestedRequestBuilder builder() {
@@ -282,6 +285,10 @@ public class WellRestedRequest {
             gsonBuilder.setExclusionStrategies(exclusionStrategy);
         } else if (this.excludedFieldNames != null || this.excludedClassNames != null) {
             gsonBuilder.setExclusionStrategies(new BasicExclusionStrategy(excludedClassNames, excludedFieldNames));
+        }
+
+        if(this.gsonCustomiser != null){
+            this.gsonCustomiser.customise(gsonBuilder);
         }
 
         return gsonBuilder.create();

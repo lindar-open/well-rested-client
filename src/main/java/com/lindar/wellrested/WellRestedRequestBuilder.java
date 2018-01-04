@@ -38,6 +38,8 @@ public class WellRestedRequestBuilder {
 
     private List<Header> globalHeaders;
 
+    private GsonCustomiser gsonCustomiser;
+
     public WellRestedRequestBuilder uri(URI uri) {
         this.uri = uri;
         return this;
@@ -65,6 +67,11 @@ public class WellRestedRequestBuilder {
 
     public WellRestedRequestBuilder proxy(String proxyHost, int proxyPort, String scheme) {
         this.proxy = new HttpHost(proxyHost, proxyPort, scheme);
+        return this;
+    }
+
+    public WellRestedRequestBuilder gsonCustomiser(GsonCustomiser gsonCustomiser){
+        this.gsonCustomiser = gsonCustomiser;
         return this;
     }
 
@@ -182,6 +189,6 @@ public class WellRestedRequestBuilder {
     /** NOTE: keep in mind that date serializers and deserializers and all exclusion strategies are available only for JSON content */
     public WellRestedRequest build() {
         return new WellRestedRequest(this.uri, this.credentials, this.proxy, this.dateSerializer, this.dateDeserializer,
-                this.dateFormat, this.exclusionStrategy, this.excludedFieldNames, this.excludedClassNames, this.globalHeaders);
+                this.dateFormat, this.exclusionStrategy, this.excludedFieldNames, this.excludedClassNames, this.globalHeaders, this.gsonCustomiser);
     }
 }
