@@ -6,7 +6,7 @@
 
     <groupId>com.lindar</groupId>
     <artifactId>well-rested-client</artifactId>
-    <version>1.3.0</version>
+    <version>1.4.0</version>
     
     <name>Well Rested Client</name>
     <description>A nice and easy java http client wrapper built on top of apache httpclient</description>
@@ -44,8 +44,7 @@
             <url>https://oss.sonatype.org/service/local/staging/deploy/maven2</url>
         </repository>
     </distributionManagement>
-
-
+    
     <dependencies>
 
         <dependency>
