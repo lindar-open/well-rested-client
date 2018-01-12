@@ -99,7 +99,20 @@ public class WellRestedResponse implements Serializable {
          * Maps a json string to a Java object. If no custom date formats are set, the default date format is: yyyy-MM-dd'T'HH:mm:ssz
          */
         public <T> T castTo(Class<T> objClass) {
-            return gsonBuilder().create().fromJson(serverResponse, objClass);
+            return castTo((Type) objClass);
+        }
+
+        public <T> T castTo(TypeToken<T> typeToken) {
+            return castTo((Type) typeToken.getType());
+        }
+
+        public <T> T castTo(Type type) {
+            try {
+                return gsonBuilder().create().fromJson(serverResponse, type);
+            } catch (Exception ex) {
+                log.info("Error casting response to generic Type | {}", ex);
+            }
+            return null;
         }
 
         public <T> List<T> castToList(TypeToken<List<T>> typeToken) {
@@ -109,6 +122,7 @@ public class WellRestedResponse implements Serializable {
             }
             return gsonBuilder.create().fromJson(serverResponse, typeToken.getType());
         }
+
     }
 
 
@@ -160,7 +174,7 @@ public class WellRestedResponse implements Serializable {
             } catch (Exception ex) {
                 log.info("Error casting response to Result | {}", ex);
             }
-            return ResultFactory.failed("Error casting response to a Result object");
+            return ResultBuilder.failed("Error casting response to a Result object");
         }
     }
 
