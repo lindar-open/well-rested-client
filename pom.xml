@@ -4,7 +4,7 @@
 
     <groupId>com.lindar</groupId>
     <artifactId>well-rested-client</artifactId>
-    <version>1.4.18-SNAPSHOT</version>
+    <version>1.4.18</version>
     
     <name>Well Rested Client</name>
     <description>A nice and easy java http client wrapper built on top of apache httpclient</description>
@@ -30,7 +30,7 @@
         <connection>scm:git:git@github.com:lindar-open/well-rested-client.git</connection>
         <developerConnection>scm:git:git@github.com:lindar-open/well-rested-client.git</developerConnection>
         <url>https://github.com/lindar-open/well-rested-client.git</url>
-      <tag>HEAD</tag>
+      <tag>1.4.18</tag>
   </scm>
 
     <distributionManagement>
