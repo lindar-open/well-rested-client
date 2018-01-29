@@ -10,7 +10,7 @@ Examples:
 **GET Request:**
 
 ``` java
-ResponseVO serverResponse = WellRestedRequest.build(url).get();
+ResponseVO serverResponse = WellRestedRequest.builder().url(url).build().get().submit();
 ```
 
 The ResponseVO class contains the status code returned by the server and the server response returned as String.
@@ -21,45 +21,20 @@ The ResponseVO class contains the status code returned by the server and the ser
 **How to post a json string directly:** 
 
 ``` java
-ResponseVO serverResponse = WellRestedRequest.build(url).post(jsonString);
+ResponseVO serverResponse = WellRestedRequest.builder().url(url).build().post().jsonContent(jsonString).submit();
 ```
 
 **How to post an object as json:**
 
 ``` java
-ResponseVO serverResponse = WellRestedRequest.build(url).post(myObj);
+ResponseVO serverResponse = WellRestedRequest.builder().url(url).build().post().jsonContent(myObj).submit();
 ```
 
 **How to post an xml string directly:**
 
 ``` java
-ResponseVO serverResponse = WellRestedRequest.build(url).post(xmlString, ContentType.APPLICATION_XML);
+ResponseVO serverResponse = WellRestedRequest.builder().url(url).build().post().xmlContent(xmlString).submit();
 ```
-
-
-**Support for custom date serializers and deserializers and date formats:** 
-
-Set date format (please note, the date format **overrides** any set serializers and deserializers):
-``` java
-ResponseVO serverResponse = WellRestedRequest.build(url).setDateFormat("yyyy-MM-dd").post(myObj);
-```
-
-Set provided String date serializer with custom format, Long date serializer or your own serializer:
-
-``` java
-ResponseVO serverResponse = WellRestedRequest.build(url).setDateSerializer(new StringDateSerializer("yyyy/MM/dd")).post(myObj); 
-ResponseVO serverResponse = WellRestedRequest.build(url).setDateSerializer(new LongDateSerializer()).post(myObj); 
-ResponseVO serverResponse = WellRestedRequest.build(url).setDateSerializer(new MyCustomDateSerializer()).post(myObj); 
-```
-
-Set provided date Deserializer with custom formats or your own deserializer:
-
-``` java
-ResponseVO serverResponse = WellRestedRequest.build(url).setDateDeserializer(new DateDeserializer("yyyy/MM/dd")).post(myObj); 
-ResponseVO serverResponse = WellRestedRequest.build(url).setDateDeserializer(new DateDeserializer(Arrays.asList("yyyy/MM/dd", "dd/MM/yyyy"))).post(myObj); 
-ResponseVO serverResponse = WellRestedRequest.build(url).setDateDeserializer(new MyCustomDateDeserializer()).post(myObj); 
-```
-
 
 More examples to come...
 
@@ -69,6 +44,6 @@ Usage:
 <dependency>
     <groupId>com.lindar</groupId>
     <artifactId>well-rested-client</artifactId>
-    <version>1.1.0</version>
+    <version>1.4.1</version>
 </dependency>
 ```
