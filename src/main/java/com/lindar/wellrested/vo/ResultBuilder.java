@@ -47,6 +47,10 @@ public class ResultBuilder<T> {
         return Result.<T>builder().success(false).msg(msg).build();
     }
 
+    public static <T> Result<T> failedCastingResult() {
+        return Result.<T>builder().castingErrorThrown(true).success(false).msg("Failed casting response object").build();
+    }
+
     public ResultBuilder<T> success(boolean success) {
         resultBuilder.success(success);
         return this;
@@ -79,6 +83,16 @@ public class ResultBuilder<T> {
 
     public ResultBuilder<T> code(String code) {
         resultBuilder.code(code);
+        return this;
+    }
+
+    public ResultBuilder<T> castingErrorThrown() {
+        resultBuilder.castingErrorThrown(true);
+        return this;
+    }
+
+    public ResultBuilder<T> castingErrorThrown(boolean castingErrorThrown) {
+        resultBuilder.castingErrorThrown(castingErrorThrown);
         return this;
     }
 

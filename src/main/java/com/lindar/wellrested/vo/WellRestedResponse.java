@@ -107,12 +107,7 @@ public class WellRestedResponse implements Serializable {
         }
 
         public <T> T castTo(Type type) {
-            try {
-                return gsonBuilder().create().fromJson(serverResponse, type);
-            } catch (Exception ex) {
-                log.info("Error casting response to generic Type | {}", ex);
-            }
-            return null;
+            return gsonBuilder().create().fromJson(serverResponse, type);
         }
 
         public <T> List<T> castToList(TypeToken<List<T>> typeToken) {
@@ -174,7 +169,7 @@ public class WellRestedResponse implements Serializable {
             } catch (Exception ex) {
                 log.info("Error casting response to Result | {}", ex);
             }
-            return ResultBuilder.failed("Error casting response to a Result object");
+            return ResultBuilder.failedCastingResult();
         }
     }
 

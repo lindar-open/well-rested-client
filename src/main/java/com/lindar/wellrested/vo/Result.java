@@ -26,13 +26,16 @@ public class Result<T> implements Serializable {
     @Getter
     final private String code; // response code - usually error code
 
-    @java.beans.ConstructorProperties({"success", "visible", "data", "msg", "code"})
-    Result(boolean success, boolean visible, T data, String msg, String code) {
+    final private boolean castingErrorThrown;
+
+    @java.beans.ConstructorProperties({"success", "visible", "data", "msg", "code", "castingErrorThrown"})
+    Result(boolean success, boolean visible, T data, String msg, String code, boolean castingErrorThrown) {
         this.success = success;
         this.visible = visible;
         this.data = data;
         this.msg = msg;
         this.code = code;
+        this.castingErrorThrown = castingErrorThrown;
     }
 
     public static <T> ResultBuilder<T> builder() {
@@ -57,6 +60,10 @@ public class Result<T> implements Serializable {
 
     public boolean isFailedAndNull() {
         return !success && data == null;
+    }
+
+    public boolean failedCastingResult() {
+        return castingErrorThrown;
     }
 
     public Result<T> filter(Predicate<? super T> predicate) {
@@ -167,40 +174,48 @@ public class Result<T> implements Serializable {
         private String msg;
         private String code;
 
+        private boolean castingErrorThrown;
+
         ResultBuilder() {
         }
 
-        public ResultBuilder<T> success(boolean success) {
+        ResultBuilder<T> success(boolean success) {
             this.success = success;
             return this;
         }
 
-        public ResultBuilder<T> visible(boolean visible) {
+        ResultBuilder<T> visible(boolean visible) {
             this.visible = visible;
             return this;
         }
 
-        public ResultBuilder<T> data(T data) {
+        ResultBuilder<T> data(T data) {
             this.data = data;
             return this;
         }
 
-        public ResultBuilder<T> msg(String msg) {
+        ResultBuilder<T> msg(String msg) {
             this.msg = msg;
             return this;
         }
 
-        public ResultBuilder<T> code(String code) {
+        ResultBuilder<T> code(String code) {
             this.code = code;
             return this;
         }
 
-        public Result<T> build() {
-            return new Result<T>(success, visible, data, msg, code);
+        ResultBuilder<T> castingErrorThrown(boolean castingErrorThrown) {
+            this.castingErrorThrown = castingErrorThrown;
+            return this;
+        }
+
+        Result<T> build() {
+            return new Result<T>(success, visible, data, msg, code, castingErrorThrown);
         }
 
         public String toString() {
-            return "Result.ResultBuilder(success=" + this.success + ", visible=" + this.visible + ", data=" + this.data + ", msg=" + this.msg + ", code=" + this.code + ")";
+            return "Result.ResultBuilder(success=" + this.success + ", visible=" + this.visible + ", data=" + this.data
+                    + ", msg=" + this.msg + ", code=" + this.code + ", castingErrorThrown=" + this.castingErrorThrown + ")";
         }
     }
 }
