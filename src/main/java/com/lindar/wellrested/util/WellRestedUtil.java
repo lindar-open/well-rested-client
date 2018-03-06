@@ -11,9 +11,7 @@ import org.apache.http.message.BasicHeader;
 import org.apache.http.util.EntityUtils;
 
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Slf4j
@@ -28,6 +26,7 @@ public final class WellRestedUtil {
         try {
             WellRestedResponse wellRestedResponse = new WellRestedResponse();
             wellRestedResponse.setCurrentURI(url);
+            wellRestedResponse.setResponseHeaders(createHeaderMap(Arrays.asList(httpResponse.getAllHeaders())));
 
             if (httpResponse.getEntity() != null) {
                 String responseContent = httpResponse.getEntity() != null 
@@ -76,5 +75,16 @@ public final class WellRestedUtil {
         return headerMap.entrySet().stream()
                 .map(entry -> new BasicHeader(entry.getKey(), entry.getValue()))
                 .collect(Collectors.toList());
+    }
+
+    private Map<String,String> createHeaderMap(List<Header> headers){
+        Map<String,String> headerMap = new HashMap<>();
+        if(headers == null){
+            return headerMap;
+        }
+        headers.forEach(header -> {
+            headerMap.put(header.getName(), header.getValue());
+        });
+        return headerMap;
     }
 }

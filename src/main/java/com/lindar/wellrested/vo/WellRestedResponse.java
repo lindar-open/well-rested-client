@@ -21,6 +21,7 @@ import java.lang.reflect.Type;
 import java.util.Collections;
 import java.util.Date;
 import java.util.List;
+import java.util.Map;
 
 @ToString
 @EqualsAndHashCode
@@ -40,6 +41,9 @@ public class WellRestedResponse implements Serializable {
     
     @Setter
     private List<String> dateFormats;
+
+    @Getter @Setter
+    private Map<String,String> responseHeaders;
 
     private GsonCustomiser gsonCustomiser;
 
