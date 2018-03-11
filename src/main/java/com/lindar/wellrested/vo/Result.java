@@ -29,7 +29,7 @@ public class Result<T> implements Serializable {
     final private boolean castingErrorThrown;
 
     @java.beans.ConstructorProperties({"success", "visible", "data", "msg", "code", "castingErrorThrown"})
-    Result(boolean success, boolean visible, T data, String msg, String code, boolean castingErrorThrown) {
+    public Result(boolean success, boolean visible, T data, String msg, String code, boolean castingErrorThrown) {
         this.success = success;
         this.visible = visible;
         this.data = data;
