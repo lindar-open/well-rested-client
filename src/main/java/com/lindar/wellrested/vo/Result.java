@@ -62,7 +62,7 @@ public class Result<T> implements Serializable {
         return !success && data == null;
     }
 
-    public boolean failedCastingResult() {
+    public boolean castingErrorThrown() {
         return castingErrorThrown;
     }
 
