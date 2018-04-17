@@ -24,6 +24,12 @@
             <organization>Lindar</organization>
             <organizationUrl>http://www.lindar.com/</organizationUrl>
         </developer>
+        <developer>
+            <name>Steven Hills</name>
+            <url>steven@lindar.com</url>
+            <organization>Lindar</organization>
+            <organizationUrl>http://www.lindar.com/</organizationUrl>
+        </developer>
     </developers>
     
     <scm>
