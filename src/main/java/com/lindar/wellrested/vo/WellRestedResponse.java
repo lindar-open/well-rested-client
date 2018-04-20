@@ -1,5 +1,6 @@
 package com.lindar.wellrested.vo;
 
+import com.fatboyindustrial.gsonjavatime.Converters;
 import com.google.gson.GsonBuilder;
 import com.google.gson.JsonDeserializer;
 import com.google.gson.reflect.TypeToken;
@@ -174,7 +175,7 @@ public class WellRestedResponse implements Serializable {
     }
 
     private GsonBuilder gsonBuilder() {
-        GsonBuilder gsonBuilder = new GsonBuilder();
+        GsonBuilder gsonBuilder = Converters.registerAll(new GsonBuilder());
         DateDeserializer dateDeserializer;
         if (dateFormats != null && !dateFormats.isEmpty()) {
             dateDeserializer = new DateDeserializer(dateFormats);
@@ -182,11 +183,9 @@ public class WellRestedResponse implements Serializable {
             dateDeserializer = new DateDeserializer();
         }
         gsonBuilder.registerTypeAdapter(Date.class, dateDeserializer);
-
         if(gsonCustomiser != null){
             gsonCustomiser.customise(gsonBuilder);
         }
-
         return gsonBuilder;
     }
 
