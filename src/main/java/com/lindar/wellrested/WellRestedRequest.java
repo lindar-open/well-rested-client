@@ -1,5 +1,6 @@
 package com.lindar.wellrested;
 
+import com.fatboyindustrial.gsonjavatime.Converters;
 import com.google.gson.ExclusionStrategy;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
@@ -273,7 +274,7 @@ public class WellRestedRequest {
     }
 
     private Gson buildGson() {
-        GsonBuilder gsonBuilder = new GsonBuilder();
+        GsonBuilder gsonBuilder = Converters.registerAll(new GsonBuilder());
         if (StringUtils.isBlank(this.dateFormat)) {
             gsonBuilder.registerTypeAdapter(Date.class, this.dateSerializer);
             gsonBuilder.registerTypeAdapter(Date.class, this.dateDeserializer);
@@ -290,7 +291,6 @@ public class WellRestedRequest {
         if(this.gsonCustomiser != null){
             this.gsonCustomiser.customise(gsonBuilder);
         }
-
         return gsonBuilder.create();
     }
 
