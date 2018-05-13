@@ -6,12 +6,14 @@ import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.http.Header;
 import org.apache.http.HttpResponse;
+import org.apache.http.NameValuePair;
 import org.apache.http.ParseException;
 import org.apache.http.message.BasicHeader;
 import org.apache.http.util.EntityUtils;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -29,18 +31,21 @@ public final class WellRestedUtil {
             WellRestedResponse wellRestedResponse = new WellRestedResponse();
             wellRestedResponse.setCurrentURI(url);
 
+            if (httpResponse.getAllHeaders() != null) {
+                wellRestedResponse.setResponseHeaders(createHeaderMap(httpResponse.getAllHeaders()));
+            }
+
             if (httpResponse.getEntity() != null) {
-                String responseContent = httpResponse.getEntity() != null 
-                        ? EntityUtils.toString(httpResponse.getEntity()) 
-                        : StringUtils.EMPTY;
+                String responseContent = httpResponse.getEntity() != null
+                                         ? EntityUtils.toString(httpResponse.getEntity())
+                                         : StringUtils.EMPTY;
                 wellRestedResponse.setServerResponse(responseContent);
             }
-            
             int statusCode = httpResponse.getStatusLine().getStatusCode();
             wellRestedResponse.setStatusCode(statusCode);
             return wellRestedResponse;
         } catch (IOException | ParseException ex) {
-            log.error("Error occured while building the WellRestedResponse: ", ex);
+            log.error("Error occurred while building the WellRestedResponse: ", ex);
         }
         return buildErrorWellRestedResponse(url);
     }
@@ -74,7 +79,11 @@ public final class WellRestedUtil {
             return new ArrayList<>();
         }
         return headerMap.entrySet().stream()
-                .map(entry -> new BasicHeader(entry.getKey(), entry.getValue()))
-                .collect(Collectors.toList());
+                        .map(entry -> new BasicHeader(entry.getKey(), entry.getValue()))
+                        .collect(Collectors.toList());
+    }
+
+    private Map<String, String> createHeaderMap(Header[] headers) {
+        return Arrays.stream(headers).collect(Collectors.toMap(NameValuePair::getName, NameValuePair::getValue));
     }
 }

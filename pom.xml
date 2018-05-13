@@ -6,6 +6,7 @@
     <artifactId>well-rested-client</artifactId>
     <version>1.5.3-SNAPSHOT</version>
     <name>Well Rested Client</name>
+
     <description>A nice and easy java http client wrapper built on top of apache httpclient</description>
     <url>http://www.lindar.com/</url>
 

@@ -22,12 +22,12 @@ import java.lang.reflect.Type;
 import java.util.Collections;
 import java.util.Date;
 import java.util.List;
+import java.util.Map;
 
 @ToString
 @EqualsAndHashCode
 @Slf4j
 public class WellRestedResponse implements Serializable {
-
     private static final long serialVersionUID = 51255400364556607L;
 
     @Getter @Setter
@@ -41,6 +41,9 @@ public class WellRestedResponse implements Serializable {
     
     @Setter
     private List<String> dateFormats;
+
+    @Getter @Setter
+    private Map<String,String> responseHeaders;
 
     private GsonCustomiser gsonCustomiser;
 
@@ -64,8 +67,6 @@ public class WellRestedResponse implements Serializable {
             return WellRestedXMLUtil.fromStringToObject(serverResponse, objClass);
         }
     }
-
-
 
     private JsonResponseMapper fromJson = new JsonResponseMapper();
 
