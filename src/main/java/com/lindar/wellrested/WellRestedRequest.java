@@ -31,17 +31,17 @@ import java.util.Set;
 @Slf4j
 public class WellRestedRequest {
 
-    private URI uri;
+    private URI         uri;
     private Credentials credentials;
-    private HttpHost proxy;
+    private HttpHost    proxy;
 
-    private JsonSerializer<Date> dateSerializer;
+    private JsonSerializer<Date>   dateSerializer;
     private JsonDeserializer<Date> dateDeserializer;
-    private String dateFormat;
+    private String                 dateFormat;
 
     private ExclusionStrategy exclusionStrategy;
-    private List<String> excludedFieldNames;
-    private Set<String> excludedClassNames;
+    private List<String>      excludedFieldNames;
+    private Set<String>       excludedClassNames;
 
     private List<Header> globalHeaders;
 
@@ -112,7 +112,9 @@ public class WellRestedRequest {
 
     //********************* GET *******************************************************************/
 
-    /** Allows you to configure and submit GET requests */
+    /**
+     * Allows you to configure and submit GET requests
+     */
     public GetRequest get() {
         return new GetRequest();
     }
@@ -135,16 +137,20 @@ public class WellRestedRequest {
 
     //********************* POST *******************************************************************/
 
-    /** Allows you to configure and submit POST requests */
+    /**
+     * Allows you to configure and submit POST requests
+     */
     public PostRequest post() {
         return new PostRequest();
     }
 
     public class PostRequest implements RequestResource, HeadersSupport, HttpEntitySupport {
         private List<Header> headers;
-        private HttpEntity httpEntity;
+        private HttpEntity   httpEntity;
 
-        /** Serialise a java object into JSON String and add it to the request body */
+        /**
+         * Serialise a java object into JSON String and add it to the request body
+         */
         public <T> PostRequest jsonContent(T object) {
             return jsonContent(buildGson().toJson(object));
         }
@@ -169,17 +175,21 @@ public class WellRestedRequest {
 
     //********************* PUT *******************************************************************/
 
-    /** Allows you to configure and submit PUT requests */
+    /**
+     * Allows you to configure and submit PUT requests
+     */
     public PutRequest put() {
         return new PutRequest();
     }
 
     public class PutRequest implements RequestResource, HeadersSupport, HttpEntitySupport {
         private List<Header> headers;
-        private HttpEntity httpEntity;
+        private HttpEntity   httpEntity;
 
-        /** Serialise a java object into JSON String and add it to the request body */
-        public <T> PostRequest jsonContent(T object) {
+        /**
+         * Serialise a java object into JSON String and add it to the request body
+         */
+        public <T> PutRequest jsonContent(T object) {
             return jsonContent(buildGson().toJson(object));
         }
 
@@ -202,20 +212,23 @@ public class WellRestedRequest {
     }
 
 
-
     //********************* DELETE *******************************************************************/
 
-    /** Allows you to configure and submit DELETE requests */
+    /**
+     * Allows you to configure and submit DELETE requests
+     */
     public DeleteRequest delete() {
         return new DeleteRequest();
     }
 
     public class DeleteRequest implements RequestResource, HeadersSupport, HttpEntitySupport {
         private List<Header> headers;
-        private HttpEntity httpEntity;
+        private HttpEntity   httpEntity;
 
-        /** Serialise a java object into JSON String and add it to the request body */
-        public <T> PostRequest jsonContent(T object) {
+        /**
+         * Serialise a java object into JSON String and add it to the request body
+         */
+        public <T> DeleteRequest jsonContent(T object) {
             return jsonContent(buildGson().toJson(object));
         }
 
@@ -242,23 +255,18 @@ public class WellRestedRequest {
 
     public WellRestedResponse submitRequest(Request request, HttpEntity httpEntity, List<Header> headers) {
         try {
-
             if (httpEntity != null) {
                 request.body(httpEntity);
             }
-
             if (headers != null && !headers.isEmpty()) {
                 headers.forEach(request::addHeader);
             }
-
             if (this.globalHeaders != null && !this.globalHeaders.isEmpty()) {
                 this.globalHeaders.forEach(request::addHeader);
             }
-
             if (this.proxy != null) {
                 request.viaProxy(proxy);
             }
-
             HttpResponse httpResponse;
             if (credentials != null) {
                 Executor executor = Executor.newInstance().auth(credentials);
@@ -288,7 +296,7 @@ public class WellRestedRequest {
             gsonBuilder.setExclusionStrategies(new BasicExclusionStrategy(excludedClassNames, excludedFieldNames));
         }
 
-        if(this.gsonCustomiser != null){
+        if (this.gsonCustomiser != null) {
             this.gsonCustomiser.customise(gsonBuilder);
         }
         return gsonBuilder.create();
