@@ -38,17 +38,17 @@ public class WellRestedRequest {
     private JsonSerializer<Date>   dateSerializer;
     private JsonDeserializer<Date> dateDeserializer;
     private String                 dateFormat;
+    private ExclusionStrategy      exclusionStrategy;
+    private List<String>           excludedFieldNames;
+    private Set<String>            excludedClassNames;
+    private List<Header>           globalHeaders;
+    private GsonCustomiser         gsonCustomiser;
+    private boolean                disableCookiesForAuthRequests;
 
-    private ExclusionStrategy exclusionStrategy;
-    private List<String>      excludedFieldNames;
-    private Set<String>       excludedClassNames;
-
-    private List<Header> globalHeaders;
-
-    private GsonCustomiser gsonCustomiser;
 
     WellRestedRequest(URI uri, Credentials credentials, HttpHost proxy, JsonSerializer<Date> dateSerializer, JsonDeserializer<Date> dateDeserializer,
-                      String dateFormat, ExclusionStrategy exclusionStrategy, List<String> excludedFieldNames, Set<String> excludedClassNames, List<Header> globalHeaders, GsonCustomiser gsonCustomiser) {
+                      String dateFormat, ExclusionStrategy exclusionStrategy, List<String> excludedFieldNames, Set<String> excludedClassNames,
+                      List<Header> globalHeaders, GsonCustomiser gsonCustomiser, boolean disableCookiesForAuthRequests) {
         this.uri = uri;
         this.credentials = credentials;
         this.proxy = proxy;
@@ -60,6 +60,7 @@ public class WellRestedRequest {
         this.excludedClassNames = excludedClassNames;
         this.globalHeaders = globalHeaders;
         this.gsonCustomiser = gsonCustomiser;
+        this.disableCookiesForAuthRequests = disableCookiesForAuthRequests;
     }
 
     public static WellRestedRequestBuilder builder() {
@@ -109,7 +110,6 @@ public class WellRestedRequest {
         return this;
     }
 
-
     //********************* GET *******************************************************************/
 
     /**
@@ -122,14 +122,12 @@ public class WellRestedRequest {
     public class GetRequest implements RequestResource, HeadersSupport {
         private List<Header> headers;
 
-        @Override
-        public GetRequest headers(List<Header> headers) {
+        @Override public GetRequest headers(List<Header> headers) {
             this.headers = headers;
             return this;
         }
 
-        @Override
-        public WellRestedResponse submit() {
+        @Override public WellRestedResponse submit() {
             return submitRequest(Request.Get(uri), null, headers);
         }
     }
@@ -155,20 +153,17 @@ public class WellRestedRequest {
             return jsonContent(buildGson().toJson(object));
         }
 
-        @Override
-        public PostRequest headers(List<Header> headers) {
+        @Override public PostRequest headers(List<Header> headers) {
             this.headers = headers;
             return this;
         }
 
-        @Override
-        public PostRequest httpEntity(HttpEntity httpEntity) {
+        @Override public PostRequest httpEntity(HttpEntity httpEntity) {
             this.httpEntity = httpEntity;
             return this;
         }
 
-        @Override
-        public WellRestedResponse submit() {
+        @Override public WellRestedResponse submit() {
             return submitRequest(Request.Post(uri), httpEntity, headers);
         }
     }
@@ -193,20 +188,17 @@ public class WellRestedRequest {
             return jsonContent(buildGson().toJson(object));
         }
 
-        @Override
-        public PutRequest headers(List<Header> headers) {
+        @Override public PutRequest headers(List<Header> headers) {
             this.headers = headers;
             return this;
         }
 
-        @Override
-        public PutRequest httpEntity(HttpEntity httpEntity) {
+        @Override public PutRequest httpEntity(HttpEntity httpEntity) {
             this.httpEntity = httpEntity;
             return this;
         }
 
-        @Override
-        public WellRestedResponse submit() {
+        @Override public WellRestedResponse submit() {
             return submitRequest(Request.Put(uri), httpEntity, headers);
         }
     }
@@ -232,20 +224,17 @@ public class WellRestedRequest {
             return jsonContent(buildGson().toJson(object));
         }
 
-        @Override
-        public DeleteRequest headers(List<Header> headers) {
+        @Override public DeleteRequest headers(List<Header> headers) {
             this.headers = headers;
             return this;
         }
 
-        @Override
-        public DeleteRequest httpEntity(HttpEntity httpEntity) {
+        @Override public DeleteRequest httpEntity(HttpEntity httpEntity) {
             this.httpEntity = httpEntity;
             return this;
         }
 
-        @Override
-        public WellRestedResponse submit() {
+        @Override public WellRestedResponse submit() {
             return submitRequest(Request.Delete(uri), httpEntity, headers);
         }
     }
@@ -269,7 +258,13 @@ public class WellRestedRequest {
             }
             HttpResponse httpResponse;
             if (credentials != null) {
-                Executor executor = Executor.newInstance().auth(credentials);
+                Executor executor = Executor.newInstance();
+                if (disableCookiesForAuthRequests) {
+                    executor.clearCookies();
+                    executor.clearAuth();
+                    executor.authPreemptive(uri.getHost());
+                }
+                executor.auth(credentials);
                 httpResponse = executor.execute(request).returnResponse();
             } else {
                 httpResponse = request.execute().returnResponse();
