@@ -16,8 +16,10 @@ import org.apache.http.HttpEntity;
 import org.apache.http.HttpHost;
 import org.apache.http.HttpResponse;
 import org.apache.http.auth.Credentials;
+import org.apache.http.client.HttpClient;
 import org.apache.http.client.fluent.Executor;
 import org.apache.http.client.fluent.Request;
+import org.apache.http.impl.client.HttpClientBuilder;
 import org.apache.http.message.BasicHeader;
 
 import java.io.IOException;
@@ -44,7 +46,11 @@ public class WellRestedRequest {
     private List<Header>           globalHeaders;
     private GsonCustomiser         gsonCustomiser;
     private boolean                disableCookiesForAuthRequests;
+    private static final HttpClient internalStatelessHttpClient;
 
+    static {
+        internalStatelessHttpClient = HttpClientBuilder.create().disableAuthCaching().disableCookieManagement().build();
+    }
 
     WellRestedRequest(URI uri, Credentials credentials, HttpHost proxy, JsonSerializer<Date> dateSerializer, JsonDeserializer<Date> dateDeserializer,
                       String dateFormat, ExclusionStrategy exclusionStrategy, List<String> excludedFieldNames, Set<String> excludedClassNames,
@@ -258,11 +264,15 @@ public class WellRestedRequest {
             }
             HttpResponse httpResponse;
             if (credentials != null) {
-                Executor executor = Executor.newInstance();
+
+                Executor executor;
                 if (disableCookiesForAuthRequests) {
+                    executor = Executor.newInstance(internalStatelessHttpClient);
                     executor.clearCookies();
                     executor.clearAuth();
                     executor.authPreemptive(uri.getHost());
+                } else {
+                    executor = Executor.newInstance();
                 }
                 executor.auth(credentials);
                 httpResponse = executor.execute(request).returnResponse();
