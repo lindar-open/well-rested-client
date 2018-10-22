@@ -49,7 +49,8 @@ public class WellRestedRequest {
     private static final HttpClient internalStatelessHttpClient;
 
     static {
-        internalStatelessHttpClient = HttpClientBuilder.create().disableAuthCaching().disableCookieManagement().build();
+        internalStatelessHttpClient = HttpClientBuilder.create().disableCookieManagement().build();
+        //.disableAuthCaching()
     }
 
     WellRestedRequest(URI uri, Credentials credentials, HttpHost proxy, JsonSerializer<Date> dateSerializer, JsonDeserializer<Date> dateDeserializer,
@@ -270,10 +271,16 @@ public class WellRestedRequest {
                     executor = Executor.newInstance(internalStatelessHttpClient);
                     executor.clearCookies();
                     executor.clearAuth();
-                    executor.authPreemptive(uri.getHost());
                 } else {
                     executor = Executor.newInstance();
                 }
+
+                if(uri.getPort() > 0) {
+                    executor.authPreemptive(uri.getHost() + ":" + uri.getPort());
+                } else {
+                    executor.authPreemptive(uri.getHost());
+                }
+
                 executor.auth(credentials);
                 httpResponse = executor.execute(request).returnResponse();
             } else {

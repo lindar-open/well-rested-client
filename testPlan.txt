@@ -1,0 +1,75 @@
+Testing 'WellRestedClient'
+
+Main class - wellRestedRequest
+built by WellRestedRequestBuilder
+
+WellRestedRequestBuilder -
+contains functions to set each parameter for a WellRestedRequest
+parameters:
+	uri - URI
+	credentials - Credentials
+	proxy - HttpHost
+	dateSerializer - JsonSerializer<Date>
+	dateDeserializer - JsonDeserializer<Date>
+	dateFormat - String
+	exclusionStrategy - ExclusionStrategy
+	excludedFieldNames - List<String>
+	excludedClassNames - List<String>
+	globalHeaders - List<Header>
+	gsonCustomiser - GsonCustomiser
+	disableCookiesForAuthRequest - boolean
+
+stores parameters in self, then function to create and return WellRestedRequest
+
+	Testing:
+	make WellRestedRequestBuilder
+	populate parameters with known values
+	build WellRestedRequest
+	test whether each parameter in WellRestedRequest matches value inputted int WellRestedRequestBuilder
+
+WellRestedRequest -
+contains parameters as in WellRestedRequestBuilder
+contains classes for each request type:
+	GetRequest - contains headers, uri, null httpEntity
+	PostRequest - cntains headers, uri, httpEntity
+	PutRequest
+	DeleteRequest
+
+submitRequest method- Request, HttpEntity, Headers
+
+	gets httpResponse from executor
+	constructs WellRestedResponse from httpResponse
+
+
+WellRestedResponse -
+
+contains:
+	serverResponse - String
+	statusCode - int
+	currentURI - String
+	dateFormats - List<String>
+	responseHeaders - Map<String, String>
+	gsonCustomiser - GsonCustomiser
+
+serverResponse - determined in controller based on request data
+		not defined in client
+
+test:
+	create controller that uses client
+	construct mapping of request to a response dependent on content of response (more precise the better)
+	create request with known parameters
+	submit request to controller via client
+	evaluate response against expected value (assert)
+
+
+
+
+
+
+
+
+Testing:
+
+	Need handler for generating responses to requests (api/library?)
+	Need way to evaluate contents of WellRestedRequest
+	
