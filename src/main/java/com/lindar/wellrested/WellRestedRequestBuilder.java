@@ -24,21 +24,18 @@ import java.util.Set;
 public class WellRestedRequestBuilder {
     private static final String CONTENT_TYPE_PARAM = "Content-Type";
 
-    private URI uri;
-    private Credentials credentials;
-    private HttpHost proxy;
-
-    private JsonSerializer<Date> dateSerializer = new StringDateSerializer();
+    private URI                    uri;
+    private Credentials            credentials;
+    private HttpHost               proxy;
+    private JsonSerializer<Date>   dateSerializer   = new StringDateSerializer();
     private JsonDeserializer<Date> dateDeserializer = new DateDeserializer();
-    private String dateFormat = StringUtils.EMPTY;
-
-    private ExclusionStrategy exclusionStrategy;
-    private List<String> excludedFieldNames;
-    private Set<String> excludedClassNames;
-
-    private List<Header> globalHeaders;
-
-    private GsonCustomiser gsonCustomiser;
+    private String                 dateFormat       = StringUtils.EMPTY;
+    private ExclusionStrategy      exclusionStrategy;
+    private List<String>           excludedFieldNames;
+    private Set<String>            excludedClassNames;
+    private List<Header>           globalHeaders;
+    private GsonCustomiser         gsonCustomiser;
+    private boolean                disableCookiesForAuthRequests;
 
     public WellRestedRequestBuilder uri(URI uri) {
         this.uri = uri;
@@ -70,7 +67,7 @@ public class WellRestedRequestBuilder {
         return this;
     }
 
-    public WellRestedRequestBuilder gsonCustomiser(GsonCustomiser gsonCustomiser){
+    public WellRestedRequestBuilder gsonCustomiser(GsonCustomiser gsonCustomiser) {
         this.gsonCustomiser = gsonCustomiser;
         return this;
     }
@@ -186,9 +183,21 @@ public class WellRestedRequestBuilder {
         return this;
     }
 
-    /** NOTE: keep in mind that date serializers and deserializers and all exclusion strategies are available only for JSON content */
+    /**
+     * Use this method to clear all the cookies when doing secure requests (with Credentials).
+     * This is helpful in preventing SESSION cookie cache and clash
+     */
+    public WellRestedRequestBuilder disableCookiesForAuthRequests() {
+        this.disableCookiesForAuthRequests = true;
+        return this;
+    }
+
+    /**
+     * NOTE: keep in mind that date serializers and deserializers and all exclusion strategies are available only for JSON content
+     */
     public WellRestedRequest build() {
         return new WellRestedRequest(this.uri, this.credentials, this.proxy, this.dateSerializer, this.dateDeserializer,
-                this.dateFormat, this.exclusionStrategy, this.excludedFieldNames, this.excludedClassNames, this.globalHeaders, this.gsonCustomiser);
+                                     this.dateFormat, this.exclusionStrategy, this.excludedFieldNames, this.excludedClassNames,
+                                     this.globalHeaders, this.gsonCustomiser, this.disableCookiesForAuthRequests);
     }
 }

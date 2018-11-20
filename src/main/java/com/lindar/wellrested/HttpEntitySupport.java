@@ -10,7 +10,7 @@ import org.apache.http.entity.mime.MultipartEntityBuilder;
 import org.apache.http.message.BasicNameValuePair;
 
 import java.io.File;
-import java.io.UnsupportedEncodingException;
+import java.nio.charset.Charset;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -37,14 +37,14 @@ interface HttpEntitySupport {
         return httpEntity(new StringEntity(content, contentType));
     }
 
-    default <T extends RequestResource> T formParams(List<NameValuePair> formParams) {
-        HttpEntity httpEntity = null;
-        try {
-            httpEntity = new UrlEncodedFormEntity(formParams);
-        } catch (UnsupportedEncodingException ex) {
-            ex.printStackTrace();
-        }
+    default <T extends RequestResource> T formParams(List<NameValuePair> formParams, Charset charset) {
+        HttpEntity httpEntity;
+        httpEntity = new UrlEncodedFormEntity(formParams, charset);
         return httpEntity(httpEntity);
+    }
+
+    default <T extends RequestResource> T formParams(List<NameValuePair> formParams) {
+        return formParams(formParams, Charset.forName("UTF-8"));
     }
 
     default <T extends RequestResource> T formParams(Map<String, String> formParams) {

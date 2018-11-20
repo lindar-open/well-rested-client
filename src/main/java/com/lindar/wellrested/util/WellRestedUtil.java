@@ -84,6 +84,11 @@ public final class WellRestedUtil {
     }
 
     private Map<String, String> createHeaderMap(Header[] headers) {
-        return Arrays.stream(headers).collect(Collectors.toMap(NameValuePair::getName, NameValuePair::getValue));
+        return Arrays.stream(headers)
+                     .collect(Collectors
+                                      .toMap(NameValuePair::getName, NameValuePair::getValue, (v1, v2) -> {
+                                          // duplicate key found, return second value
+                                          return v2;
+                                      }));
     }
 }
