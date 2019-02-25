@@ -36,6 +36,9 @@ public class WellRestedRequestBuilder {
     private List<Header>           globalHeaders;
     private GsonCustomiser         gsonCustomiser;
     private boolean                disableCookiesForAuthRequests;
+    private Integer                timeout;
+    private Integer                connectionTimeout;
+    private Integer                socketTimeout;
 
     public WellRestedRequestBuilder uri(URI uri) {
         this.uri = uri;
@@ -193,11 +196,81 @@ public class WellRestedRequestBuilder {
     }
 
     /**
+     * Determines both the socket timeout and connection timeout to this value in milliseconds.
+     * See the different properties for more details
+     * <p>
+     * A timeout value of zero is interpreted as an infinite timeout.
+     * A negative value is interpreted as undefined (system default).
+     * </p>
+     * <p>
+     * Default: {@code 5000}
+     * </p>
+     */
+    public WellRestedRequestBuilder timeout(Integer timeout) {
+        this.connectionTimeout = timeout;
+        this.socketTimeout = timeout;
+        return this;
+    }
+
+    /**
+     * Determines the timeout in milliseconds until a connection is established.
+     * <p>
+     * A timeout value of zero is interpreted as an infinite timeout.
+     * A negative value is interpreted as undefined (system default).
+     * </p>
+     * <p>
+     * Default: {@code 5000}
+     * </p>
+     */
+    public WellRestedRequestBuilder connectionTimeout(Integer connectionTimeout) {
+        this.connectionTimeout = connectionTimeout;
+        return this;
+    }
+
+    /**
+     * Defines the socket timeout ({@code SO_TIMEOUT}) in milliseconds,
+     * which is the timeout for waiting for data  or, put differently,
+     * a maximum period inactivity between two consecutive data packets).
+     * <p>
+     * A timeout value of zero is interpreted as an infinite timeout.
+     * A negative value is interpreted as undefined (system default).
+     * </p>
+     * <p>
+     * Default: {@code 5000}
+     * </p>
+     */
+    public WellRestedRequestBuilder socketTimeout(Integer socketTimeout) {
+        this.socketTimeout = socketTimeout;
+        return this;
+    }
+
+    /**
+     * Sets both the socket timeout and connection timeout to infinite (timeout value of zero)
+     * See the different properties for more details
+     */
+    public WellRestedRequestBuilder infiniteTimeout() {
+        this.connectionTimeout = 0;
+        this.socketTimeout = 0;
+        return this;
+    }
+
+    /**
+     * Sets both the socket timeout and connection timeout to system default (timeout value of -1)
+     * See the different properties for more details
+     */
+    public WellRestedRequestBuilder systemDefaultTimeout() {
+        this.connectionTimeout = -1;
+        this.socketTimeout = -1;
+        return this;
+    }
+
+    /**
      * NOTE: keep in mind that date serializers and deserializers and all exclusion strategies are available only for JSON content
      */
     public WellRestedRequest build() {
         return new WellRestedRequest(this.uri, this.credentials, this.proxy, this.dateSerializer, this.dateDeserializer,
                                      this.dateFormat, this.exclusionStrategy, this.excludedFieldNames, this.excludedClassNames,
-                                     this.globalHeaders, this.gsonCustomiser, this.disableCookiesForAuthRequests);
+                                     this.globalHeaders, this.gsonCustomiser, this.disableCookiesForAuthRequests,
+                                     this.connectionTimeout, this.socketTimeout);
     }
 }
