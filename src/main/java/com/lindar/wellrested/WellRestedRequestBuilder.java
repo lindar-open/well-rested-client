@@ -6,6 +6,7 @@ import com.google.gson.JsonSerializer;
 import com.lindar.wellrested.util.DateDeserializer;
 import com.lindar.wellrested.util.StringDateSerializer;
 import com.lindar.wellrested.util.WellRestedUtil;
+import org.apache.commons.codec.binary.Base64;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.http.Header;
 import org.apache.http.HttpHost;
@@ -15,6 +16,7 @@ import org.apache.http.entity.ContentType;
 import org.apache.http.message.BasicHeader;
 
 import java.net.URI;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -22,7 +24,8 @@ import java.util.Map;
 import java.util.Set;
 
 public class WellRestedRequestBuilder {
-    private static final String CONTENT_TYPE_PARAM = "Content-Type";
+    private static final String CONTENT_TYPE_PARAM  = "Content-Type";
+    private static final String AUTHORIZATION_PARAM = "Authorization";
 
     private URI                    uri;
     private Credentials            credentials;
@@ -183,6 +186,17 @@ public class WellRestedRequestBuilder {
             this.globalHeaders = new ArrayList<>();
         }
         this.globalHeaders.add(new BasicHeader(CONTENT_TYPE_PARAM, ContentType.APPLICATION_JSON.toString()));
+        return this;
+    }
+
+    public WellRestedRequestBuilder addAuthorizationGlobalHeader(String username, String password) {
+        if (this.globalHeaders == null) {
+            this.globalHeaders = new ArrayList<>();
+        }
+        String auth = username + ":" + password;
+        byte[] encodedAuth = Base64.encodeBase64(auth.getBytes(StandardCharsets.ISO_8859_1));
+        String authHeader = "Basic " + new String(encodedAuth);
+        this.globalHeaders.add(new BasicHeader(AUTHORIZATION_PARAM, authHeader));
         return this;
     }
 
