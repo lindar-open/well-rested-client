@@ -34,7 +34,7 @@ import java.util.Set;
 
 @Slf4j
 public class WellRestedRequest {
-    private static final int DEFAULT_TIMEOUT = 10000;
+    public static final int DEFAULT_TIMEOUT = 10000;
 
     private static final HttpClient internalStatelessHttpClient;
 
