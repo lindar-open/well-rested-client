@@ -1,9 +1,13 @@
 package com.lindar.wellrested;
 
 import com.github.tomakehurst.wiremock.junit.WireMockRule;
+import com.lindar.wellrested.json.GsonJsonMapper;
 import com.lindar.wellrested.util.BasicExclusionStrategy;
 import com.lindar.wellrested.vo.WellRestedResponse;
-import org.junit.*;
+import org.junit.Before;
+import org.junit.BeforeClass;
+import org.junit.ClassRule;
+import org.junit.Test;
 
 import java.util.ArrayList;
 import java.util.HashSet;
@@ -11,8 +15,13 @@ import java.util.List;
 import java.util.Set;
 import java.util.concurrent.TimeUnit;
 
-import static com.github.tomakehurst.wiremock.client.WireMock.*;
 import static com.github.tomakehurst.wiremock.client.WireMock.aResponse;
+import static com.github.tomakehurst.wiremock.client.WireMock.matching;
+import static com.github.tomakehurst.wiremock.client.WireMock.post;
+import static com.github.tomakehurst.wiremock.client.WireMock.postRequestedFor;
+import static com.github.tomakehurst.wiremock.client.WireMock.stubFor;
+import static com.github.tomakehurst.wiremock.client.WireMock.urlMatching;
+import static com.github.tomakehurst.wiremock.client.WireMock.verify;
 import static org.junit.Assert.assertEquals;
 
 public class ExclusionTest {
@@ -25,8 +34,6 @@ public class ExclusionTest {
     @Before
     public void setupTests(){
         builder = new WellRestedRequestBuilder();
-        builder.excludeFields(new ArrayList<String>());
-        builder.excludeClasses(new HashSet<String>());
 
         stubFor(post(urlMatching("/tests/serializer")).atPriority(0).withRequestBody(matching("\\{\"userId\":1,\"id\":1,\"body\":\"Post Body\"\\}")).willReturn(aResponse().withStatus(201).withBody("Fourth Test: Correct Excluded Body found")));
         stubFor(post(urlMatching("/tests/serializer")).atPriority(0).withRequestBody(matching("\\{\"userId\":1,\"id\":1,\"title\":\"Post Title\",\"body\":\"Post Body\"\\}")).willReturn(aResponse().withStatus(202).withBody("Fourth Test: Correct Non-Excluded Body found")));
@@ -57,7 +64,10 @@ public class ExclusionTest {
 
         builder.url("http://localhost:8089/tests/serializer");
 
-        builder.excludeFields(excludeFields);
+        builder.jsonMapper(new GsonJsonMapper.Builder()
+                                    .excludeFields(excludeFields)
+                                    .build());
+
 
         WellRestedResponse response1 = builder.build().post().jsonContent(postData).submit();
 
@@ -67,7 +77,9 @@ public class ExclusionTest {
     @Test
     public void testNullFieldExclusion(){
         builder = new WellRestedRequestBuilder();
-        builder.excludeFields(new ArrayList<String>());
+        builder.jsonMapper(new GsonJsonMapper.Builder()
+                                   .excludeFields(new ArrayList<>())
+                                   .build());
 
         PHEntry postData1 = new PHEntry();
         postData1.setUserId(1);
@@ -80,7 +92,9 @@ public class ExclusionTest {
 
         builder.url("http://localhost:8089/tests/serializer");
 
-        builder.excludeFields(excludeFields);
+        builder.jsonMapper(new GsonJsonMapper.Builder()
+                                    .excludeFields(excludeFields)
+                                    .build());
 
         WellRestedResponse response = builder.build().post().jsonContent(postData1).submit();
 
@@ -103,7 +117,9 @@ public class ExclusionTest {
 
         builder.url("http://localhost:8089/tests/serializer");
 
-        builder.excludeClasses(excludeClasses);
+        builder.jsonMapper(new GsonJsonMapper.Builder()
+                                    .excludeClasses(excludeClasses)
+                                    .build());
 
         WellRestedResponse response2 = builder.build().post().jsonContent(postData2).submit();
 
@@ -126,7 +142,9 @@ public class ExclusionTest {
 
         builder.url("http://localhost:8089/tests/serializer");
 
-        builder.excludeClasses(excludeClasses);
+        builder.jsonMapper(new GsonJsonMapper.Builder()
+                                   .excludeClasses(excludeClasses)
+                                   .build());
 
         WellRestedResponse response2 = builder.build().post().jsonContent(postData2).submit();
 
@@ -151,7 +169,9 @@ public class ExclusionTest {
 
         builder.url("http://localhost:8089/tests/serializer");
 
-        builder.exclusionStrategy(exclude);
+        builder.jsonMapper(new GsonJsonMapper.Builder()
+                                   .exclusionStrategy(exclude)
+                                   .build());
 
         WellRestedResponse response2 = builder.build().post().jsonContent(postData2).submit();
 
@@ -170,7 +190,9 @@ public class ExclusionTest {
         builder.url("http://localhost:8089/tests/serializer");
 
         TestGsonCustomiser custom = new TestGsonCustomiser();
-        builder.gsonCustomiser(custom);
+        builder.jsonMapper(new GsonJsonMapper.Builder()
+                            .gsonCustomiser(custom)
+                            .build());
 
         WellRestedResponse response1 = builder.build().post().jsonContent(postData).submit();
 

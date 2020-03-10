@@ -1,16 +1,10 @@
 package com.lindar.wellrested;
 
-import com.fatboyindustrial.gsonjavatime.Converters;
-import com.google.gson.ExclusionStrategy;
-import com.google.gson.Gson;
-import com.google.gson.GsonBuilder;
-import com.google.gson.JsonDeserializer;
-import com.google.gson.JsonSerializer;
-import com.lindar.wellrested.util.BasicExclusionStrategy;
+import com.lindar.wellrested.json.GsonJsonMapper;
+import com.lindar.wellrested.json.JsonMapper;
 import com.lindar.wellrested.util.WellRestedUtil;
 import com.lindar.wellrested.vo.WellRestedResponse;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.commons.lang3.StringUtils;
 import org.apache.http.Header;
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpHost;
@@ -27,32 +21,24 @@ import java.io.IOException;
 import java.net.SocketTimeoutException;
 import java.net.URI;
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 
 @Slf4j
 public class WellRestedRequest {
     public static int DEFAULT_TIMEOUT = 10000;
 
+    private static final JsonMapper DEFAULT_JSON_MAPPER = new GsonJsonMapper.Builder().build(); // use the builder so some defaults are set
     private static final HttpClient internalStatelessHttpClient;
 
-    private URI         uri;
-    private Credentials credentials;
-    private HttpHost    proxy;
-
-    private JsonSerializer<Date>   dateSerializer;
-    private JsonDeserializer<Date> dateDeserializer;
-    private String                 dateFormat;
-    private ExclusionStrategy      exclusionStrategy;
-    private List<String>           excludedFieldNames;
-    private Set<String>            excludedClassNames;
-    private List<Header>           globalHeaders;
-    private GsonCustomiser         gsonCustomiser;
-    private boolean                disableCookiesForAuthRequests;
-    private Integer                connectionTimeout;
-    private Integer                socketTimeout;
+    private final URI          uri;
+    private final Credentials  credentials;
+    private final HttpHost     proxy;
+    private       List<Header> globalHeaders;
+    private final boolean      disableCookiesForAuthRequests;
+    private final Integer      connectionTimeout;
+    private final Integer      socketTimeout;
+    private final JsonMapper   jsonMapper;
 
 
     static {
@@ -60,24 +46,22 @@ public class WellRestedRequest {
         //.disableAuthCaching()
     }
 
-    WellRestedRequest(URI uri, Credentials credentials, HttpHost proxy, JsonSerializer<Date> dateSerializer, JsonDeserializer<Date> dateDeserializer,
-                      String dateFormat, ExclusionStrategy exclusionStrategy, List<String> excludedFieldNames, Set<String> excludedClassNames,
-                      List<Header> globalHeaders, GsonCustomiser gsonCustomiser, boolean disableCookiesForAuthRequests,
-                      Integer connectionTimeout, Integer socketTimeout) {
+    WellRestedRequest(URI uri, Credentials credentials, HttpHost proxy,
+                      List<Header> globalHeaders, boolean disableCookiesForAuthRequests,
+                      Integer connectionTimeout, Integer socketTimeout, JsonMapper jsonMapper) {
         this.uri = uri;
         this.credentials = credentials;
         this.proxy = proxy;
-        this.dateSerializer = dateSerializer;
-        this.dateDeserializer = dateDeserializer;
-        this.dateFormat = dateFormat;
-        this.exclusionStrategy = exclusionStrategy;
-        this.excludedFieldNames = excludedFieldNames;
-        this.excludedClassNames = excludedClassNames;
         this.globalHeaders = globalHeaders;
-        this.gsonCustomiser = gsonCustomiser;
         this.disableCookiesForAuthRequests = disableCookiesForAuthRequests;
         this.connectionTimeout = connectionTimeout;
         this.socketTimeout = socketTimeout;
+
+        if (jsonMapper == null) {
+            this.jsonMapper = DEFAULT_JSON_MAPPER;
+        } else {
+            this.jsonMapper = jsonMapper;
+        }
     }
 
     public static WellRestedRequestBuilder builder() {
@@ -139,12 +123,14 @@ public class WellRestedRequest {
     public class GetRequest implements RequestResource, HeadersSupport {
         private List<Header> headers;
 
-        @Override public GetRequest headers(List<Header> headers) {
+        @Override
+        public GetRequest headers(List<Header> headers) {
             this.headers = headers;
             return this;
         }
 
-        @Override public WellRestedResponse submit() {
+        @Override
+        public WellRestedResponse submit() {
             return submitRequest(Request.Get(uri), null, headers);
         }
     }
@@ -167,20 +153,23 @@ public class WellRestedRequest {
          * Serialise a java object into JSON String and add it to the request body
          */
         public <T> PostRequest jsonContent(T object) {
-            return jsonContent(buildGson().toJson(object));
+            return jsonContent(jsonMapper.writeValue(object));
         }
 
-        @Override public PostRequest headers(List<Header> headers) {
+        @Override
+        public PostRequest headers(List<Header> headers) {
             this.headers = headers;
             return this;
         }
 
-        @Override public PostRequest httpEntity(HttpEntity httpEntity) {
+        @Override
+        public PostRequest httpEntity(HttpEntity httpEntity) {
             this.httpEntity = httpEntity;
             return this;
         }
 
-        @Override public WellRestedResponse submit() {
+        @Override
+        public WellRestedResponse submit() {
             return submitRequest(Request.Post(uri), httpEntity, headers);
         }
     }
@@ -202,20 +191,23 @@ public class WellRestedRequest {
          * Serialise a java object into JSON String and add it to the request body
          */
         public <T> PutRequest jsonContent(T object) {
-            return jsonContent(buildGson().toJson(object));
+            return jsonContent(jsonMapper.writeValue(object));
         }
 
-        @Override public PutRequest headers(List<Header> headers) {
+        @Override
+        public PutRequest headers(List<Header> headers) {
             this.headers = headers;
             return this;
         }
 
-        @Override public PutRequest httpEntity(HttpEntity httpEntity) {
+        @Override
+        public PutRequest httpEntity(HttpEntity httpEntity) {
             this.httpEntity = httpEntity;
             return this;
         }
 
-        @Override public WellRestedResponse submit() {
+        @Override
+        public WellRestedResponse submit() {
             return submitRequest(Request.Put(uri), httpEntity, headers);
         }
     }
@@ -238,20 +230,23 @@ public class WellRestedRequest {
          * Serialise a java object into JSON String and add it to the request body
          */
         public <T> DeleteRequest jsonContent(T object) {
-            return jsonContent(buildGson().toJson(object));
+            return jsonContent(jsonMapper.writeValue(object));
         }
 
-        @Override public DeleteRequest headers(List<Header> headers) {
+        @Override
+        public DeleteRequest headers(List<Header> headers) {
             this.headers = headers;
             return this;
         }
 
-        @Override public DeleteRequest httpEntity(HttpEntity httpEntity) {
+        @Override
+        public DeleteRequest httpEntity(HttpEntity httpEntity) {
             this.httpEntity = httpEntity;
             return this;
         }
 
-        @Override public WellRestedResponse submit() {
+        @Override
+        public WellRestedResponse submit() {
             return submitRequest(Request.Delete(uri), httpEntity, headers);
         }
     }
@@ -296,17 +291,17 @@ public class WellRestedRequest {
             } else {
                 httpResponse = request.execute().returnResponse();
             }
-            return WellRestedUtil.buildWellRestedResponse(httpResponse, uri.toString());
+            return WellRestedUtil.buildWellRestedResponse(httpResponse, uri.toString(), jsonMapper);
         } catch (ConnectTimeoutException cte) {
             log.error("Connection timeout for request: {}", request.toString(), cte);
-            return WellRestedUtil.buildConnectionTimeoutWellRestedResponse(uri.toString());
+            return WellRestedUtil.buildConnectionTimeoutWellRestedResponse(uri.toString(), jsonMapper);
         } catch (SocketTimeoutException ste) {
             log.error("Socket timeout for request: {}", request.toString(), ste);
-            return WellRestedUtil.buildSocketTimeoutWellRestedResponse(uri.toString());
+            return WellRestedUtil.buildSocketTimeoutWellRestedResponse(uri.toString(), jsonMapper);
         } catch (IOException ex) {
             log.error("Error occurred after executing the request to: {}", uri.toString(), ex);
         }
-        return WellRestedUtil.buildErrorWellRestedResponse(uri.toString());
+        return WellRestedUtil.buildErrorWellRestedResponse(uri.toString(), jsonMapper);
     }
 
     private void setRequestTimeout(Request request) {
@@ -321,26 +316,5 @@ public class WellRestedRequest {
         } else {
             request.connectTimeout(DEFAULT_TIMEOUT);
         }
-    }
-
-    private Gson buildGson() {
-        GsonBuilder gsonBuilder = Converters.registerAll(new GsonBuilder());
-        if (StringUtils.isBlank(this.dateFormat)) {
-            gsonBuilder.registerTypeAdapter(Date.class, this.dateSerializer);
-            gsonBuilder.registerTypeAdapter(Date.class, this.dateDeserializer);
-        } else {
-            gsonBuilder.setDateFormat(this.dateFormat);
-        }
-
-        if (this.exclusionStrategy != null) {
-            gsonBuilder.setExclusionStrategies(exclusionStrategy);
-        } else if (this.excludedFieldNames != null || this.excludedClassNames != null) {
-            gsonBuilder.setExclusionStrategies(new BasicExclusionStrategy(excludedClassNames, excludedFieldNames));
-        }
-
-        if (this.gsonCustomiser != null) {
-            this.gsonCustomiser.customise(gsonBuilder);
-        }
-        return gsonBuilder.create();
     }
 }

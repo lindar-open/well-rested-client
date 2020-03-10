@@ -5,6 +5,7 @@ import com.github.tomakehurst.wiremock.junit.WireMockRule;
 import com.google.gson.JsonDeserializationContext;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonSerializationContext;
+import com.lindar.wellrested.json.GsonJsonMapper;
 import com.lindar.wellrested.util.DateDeserializer;
 import com.lindar.wellrested.util.LongDateSerializer;
 import com.lindar.wellrested.util.StringDateSerializer;
@@ -31,14 +32,14 @@ public class DateSerializeTest {
     public static WireMockRule wireMockRule = new WireMockRule(8089);
 
     @Before
-    public void setupTests(){
+    public void setupTests() {
 
         builder = new WellRestedRequestBuilder();
 
     }
 
     @BeforeClass
-    public static void waitToStart(){
+    public static void waitToStart() {
         try {
             TimeUnit.SECONDS.sleep(1);
         } catch (InterruptedException e) {
@@ -47,9 +48,10 @@ public class DateSerializeTest {
     }
 
     @Test
-    public void stringSerializeTest(){
+    public void stringSerializeTest() {
 
-        stubFor(post("/tests/dateString").atPriority(0).withRequestBody(matching("\\{\"date\":\"2018-02-01T01:01:00\",\"body\":\"Body Data\",\"id\":1\\}")).willReturn(aResponse().withBody("Test Successful: Date Serialized").withStatus(201)));
+        stubFor(post("/tests/dateString").atPriority(0).withRequestBody(matching("\\{\"date\":\"2018-02-01T01:01:00\",\"body\":\"Body Data\",\"id\":1\\}"))
+                                         .willReturn(aResponse().withBody("Test Successful: Date Serialized").withStatus(201)));
 
         Calendar cal = Calendar.getInstance();
         cal.set(2018, 1, 1, 1, 1, 0);
@@ -60,9 +62,10 @@ public class DateSerializeTest {
         data.setId(1);
 
         builder.url("http://localhost:8089/tests/dateString");
-
-        builder.dateSerializer(new StringDateSerializer());
-        builder.dateDeserializer(new DateDeserializer());
+        builder.jsonMapper(new GsonJsonMapper.Builder()
+                                   .dateSerializer(new StringDateSerializer())
+                                   .dateDeserializer(new DateDeserializer())
+                                   .build());
 
         WellRestedResponse response = builder.build().post().jsonContent(data).submit();
 
@@ -71,9 +74,10 @@ public class DateSerializeTest {
     }
 
     @Test
-    public void longSerializeTest(){
+    public void longSerializeTest() {
 
-        stubFor(post("/tests/dateString").atPriority(0).withRequestBody(matching("\\{\"date\":6000,\"body\":\"Body Data\",\"id\":1\\}")).willReturn(aResponse().withBody("Test Successful: Date Serialized").withStatus(201)));
+        stubFor(post("/tests/dateString").atPriority(0).withRequestBody(matching("\\{\"date\":6000,\"body\":\"Body Data\",\"id\":1\\}"))
+                                         .willReturn(aResponse().withBody("Test Successful: Date Serialized").withStatus(201)));
 
         DateEntry data = new DateEntry();
         data.setBody("Body Data");
@@ -82,8 +86,10 @@ public class DateSerializeTest {
 
         builder.url("http://localhost:8089/tests/dateString");
 
-        builder.dateSerializer(new LongDateSerializer());
-        builder.dateDeserializer(new DateDeserializer());
+        builder.jsonMapper(new GsonJsonMapper.Builder()
+                                   .dateSerializer(new LongDateSerializer())
+                                   .dateDeserializer(new DateDeserializer())
+                                   .build());
 
         WellRestedResponse response = builder.build().post().jsonContent(data).submit();
 
@@ -92,7 +98,7 @@ public class DateSerializeTest {
     }
 
     @Test
-    public void testStringSerializeFormat(){
+    public void testStringSerializeFormat() {
 
         Calendar cal = Calendar.getInstance();
         cal.set(2018, 3, 2, 1, 1, 0);
@@ -112,7 +118,7 @@ public class DateSerializeTest {
     }
 
     @Test
-    public void testDeserialize(){
+    public void testDeserialize() {
 
         Calendar cal = Calendar.getInstance();
         cal.set(2018, 3, 2, 1, 1, 0);
@@ -132,7 +138,7 @@ public class DateSerializeTest {
     }
 
     @Test
-    public void testFormattedDeserialize(){
+    public void testFormattedDeserialize() {
 
         Calendar cal = Calendar.getInstance();
         cal.set(2018, 3, 2, 1, 1, 0);
@@ -154,7 +160,7 @@ public class DateSerializeTest {
     }
 
     @Test
-    public void testLongDeserialize(){
+    public void testLongDeserialize() {
 
         Date dateData = new Date(60000);
 
@@ -175,7 +181,7 @@ public class DateSerializeTest {
     }
 
     @Test
-    public void testBuilderDateFormatMethod(){
+    public void testBuilderDateFormatMethod() {
 
         stubFor(post("/tests/dateformat").willReturn(aResponse().withBody("Request Successful")));
 
@@ -187,7 +193,12 @@ public class DateSerializeTest {
         data.setDate(cal.getTime());
         data.setId(1);
 
-        WellRestedRequest request = builder.url("http://localhost:8089/tests/dateformat").dateFormat("yyyy-dd-MM'T'HH-mm-ss").build();
+        WellRestedRequest request = builder.url("http://localhost:8089/tests/dateformat")
+                                           .jsonMapper(new GsonJsonMapper.Builder()
+                                                               .dateFormat("yyyy-dd-MM'T'HH-mm-ss")
+                                                               .dateDeserializer(new DateDeserializer())
+                                                               .build())
+                                           .build();
         WellRestedResponse response1 = request.post().jsonContent(data).submit();
 
         verify(postRequestedFor(urlMatching("/tests/dateformat")).withRequestBody(containing("\"2018-02-04T01-01-00\"")));

@@ -24,9 +24,6 @@ public class GlobalHeadersTest {
     @Before
     public void setupTests(){
         builder = new WellRestedRequestBuilder();
-        builder.excludeFields(new ArrayList<String>());
-        builder.excludeClasses(new HashSet<String>());
-
         stubFor(get(urlMatching("/tests/first")).atPriority(0).willReturn(aResponse().withStatus(200).withBody("First Test: Success")));
         stubFor(get(urlMatching("/tests/.*")).atPriority(10).willReturn(aResponse().withStatus(404).withBody("Nothing to GET here.")));
         stubFor(get(urlMatching("/tests/second")).atPriority(0).withHeader("Accept", matching("application/json")).willReturn(aResponse().withStatus(200).withBody("Second Test: Header found")));

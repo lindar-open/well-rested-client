@@ -1,11 +1,9 @@
 package com.lindar.wellrested.vo;
 
-import com.fatboyindustrial.gsonjavatime.Converters;
 import com.google.gson.GsonBuilder;
-import com.google.gson.JsonDeserializer;
 import com.google.gson.reflect.TypeToken;
-import com.lindar.wellrested.GsonCustomiser;
-import com.lindar.wellrested.util.DateDeserializer;
+import com.lindar.wellrested.json.GenericType;
+import com.lindar.wellrested.json.JsonMapper;
 import com.lindar.wellrested.util.type.CollectionWrapperType;
 import com.lindar.wellrested.util.type.ResultWrapperType;
 import com.lindar.wellrested.xml.WellRestedXMLUtil;
@@ -19,8 +17,6 @@ import org.apache.commons.lang3.StringUtils;
 import java.io.Serializable;
 import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
-import java.util.Collections;
-import java.util.Date;
 import java.util.List;
 import java.util.Map;
 
@@ -37,15 +33,13 @@ public class WellRestedResponse implements Serializable {
     private @Getter @Setter Map<String, String> responseHeaders;
     private @Getter @Setter boolean             socketTimeout;
     private @Getter @Setter boolean             connectionTimeout;
-    private                 GsonCustomiser      gsonCustomiser;
-
-    public WellRestedResponse setDateFormat(String format) {
-        this.dateFormats = Collections.singletonList(format);
-        return this;
-    }
-
+    private final           JsonMapper          jsonMapper;
 
     private XmlResponseMapper fromXml = new XmlResponseMapper();
+
+    public WellRestedResponse(JsonMapper jsonMapper) {
+        this.jsonMapper = jsonMapper;
+    }
 
     /**
      * Allows you to manage XML responses and map them to Java objects
@@ -70,46 +64,21 @@ public class WellRestedResponse implements Serializable {
     }
 
     public class JsonResponseMapper {
-        private Class<?>            deserializedObjClass;
-        private JsonDeserializer<?> deserializer;
-
-        public JsonResponseMapper setDateFormats(List<String> formats) {
-            dateFormats = formats;
-            return this;
-        }
-
-        public <K> JsonResponseMapper registerDeserializer(Class<K> deserializedObjClass, JsonDeserializer<K> deserializer) {
-            this.deserializedObjClass = deserializedObjClass;
-            this.deserializer = deserializer;
-            return this;
-        }
-
-        public JsonResponseMapper gsonCustomiser(GsonCustomiser gsonCustomiser) {
-            setGsonCustomiser(gsonCustomiser);
-            return this;
-        }
-
-        /**
-         * Maps a json string to a Java object. If no custom date formats are set, the default date format is: yyyy-MM-dd'T'HH:mm:ssz
-         */
         public <T> T castTo(Class<T> objClass) {
             return castTo((Type) objClass);
         }
 
         public <T> T castTo(TypeToken<T> typeToken) {
-            return castTo((Type) typeToken.getType());
+            return castTo(typeToken.getType());
         }
 
         public <T> T castTo(Type type) {
-            return gsonBuilder().create().fromJson(serverResponse, type);
+            return jsonMapper.readValue(serverResponse, type);
         }
 
-        public <T> List<T> castToList(TypeToken<List<T>> typeToken) {
-            GsonBuilder gsonBuilder = gsonBuilder();
-            if (deserializedObjClass != null && deserializer != null) {
-                gsonBuilder.registerTypeHierarchyAdapter(deserializedObjClass, deserializer);
-            }
-            return gsonBuilder.create().fromJson(serverResponse, typeToken.getType());
+        public <T> List<T> castToList(Class<T> objClass) {
+            Type typeOfT = TypeToken.getParameterized(List.class, objClass).getType();
+            return jsonMapper.readValue(serverResponse, typeOfT);
         }
 
     }
@@ -159,32 +128,12 @@ public class WellRestedResponse implements Serializable {
                 if (type == null) {
                     type = this.type;
                 }
-                return gsonBuilder().create().fromJson(serverResponse, type);
+                return jsonMapper.readValue(serverResponse, type);
             } catch (Exception ex) {
                 log.info("Error casting response to Result | {}", ex);
             }
             return ResultBuilder.failedCastingResult();
         }
-    }
-
-    private GsonBuilder gsonBuilder() {
-        GsonBuilder gsonBuilder = Converters.registerAll(new GsonBuilder());
-        DateDeserializer dateDeserializer;
-        if (dateFormats != null && !dateFormats.isEmpty()) {
-            dateDeserializer = new DateDeserializer(dateFormats);
-        } else {
-            dateDeserializer = new DateDeserializer();
-        }
-        gsonBuilder.registerTypeAdapter(Date.class, dateDeserializer);
-        if (gsonCustomiser != null) {
-            gsonCustomiser.customise(gsonBuilder);
-        }
-        return gsonBuilder;
-    }
-
-    private WellRestedResponse setGsonCustomiser(GsonCustomiser gsonCustomiser) {
-        this.gsonCustomiser = gsonCustomiser;
-        return this;
     }
 
     /**
