@@ -1,6 +1,5 @@
 package com.lindar.wellrested;
 
-import com.github.tomakehurst.wiremock.client.WireMock;
 import com.github.tomakehurst.wiremock.junit.WireMockRule;
 import com.google.gson.JsonDeserializationContext;
 import com.google.gson.JsonElement;
@@ -9,6 +8,11 @@ import com.lindar.wellrested.json.GsonJsonMapper;
 import com.lindar.wellrested.util.DateDeserializer;
 import com.lindar.wellrested.util.LongDateSerializer;
 import com.lindar.wellrested.util.StringDateSerializer;
+import com.lindar.wellrested.vo.WellRestedResponse;
+import org.junit.Before;
+import org.junit.BeforeClass;
+import org.junit.ClassRule;
+import org.junit.Test;
 
 import java.lang.reflect.Type;
 import java.util.ArrayList;
@@ -17,12 +21,16 @@ import java.util.Date;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 
-import com.lindar.wellrested.vo.WellRestedResponse;
-import org.junit.*;
-
+import static com.github.tomakehurst.wiremock.client.WireMock.aResponse;
+import static com.github.tomakehurst.wiremock.client.WireMock.containing;
+import static com.github.tomakehurst.wiremock.client.WireMock.matching;
+import static com.github.tomakehurst.wiremock.client.WireMock.post;
+import static com.github.tomakehurst.wiremock.client.WireMock.postRequestedFor;
+import static com.github.tomakehurst.wiremock.client.WireMock.stubFor;
+import static com.github.tomakehurst.wiremock.client.WireMock.urlMatching;
+import static com.github.tomakehurst.wiremock.client.WireMock.verify;
 import static org.junit.Assert.assertEquals;
-import static org.mockito.Mockito.*;
-import static com.github.tomakehurst.wiremock.client.WireMock.*;
+import static org.mockito.Mockito.mock;
 
 public class DateSerializeTest {
 
@@ -70,7 +78,6 @@ public class DateSerializeTest {
         WellRestedResponse response = builder.build().post().jsonContent(data).submit();
 
         verify(postRequestedFor(urlMatching("/tests/dateString")).withRequestBody(containing("2018-02-01T01:01:00")));
-
     }
 
     @Test
