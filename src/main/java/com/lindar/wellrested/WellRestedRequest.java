@@ -53,6 +53,7 @@ public class WellRestedRequest {
     private boolean                disableCookiesForAuthRequests;
     private Integer                connectionTimeout;
     private Integer                socketTimeout;
+    private HttpClient             client;
 
 
     static {
@@ -62,8 +63,8 @@ public class WellRestedRequest {
 
     WellRestedRequest(URI uri, Credentials credentials, HttpHost proxy, JsonSerializer<Date> dateSerializer, JsonDeserializer<Date> dateDeserializer,
                       String dateFormat, ExclusionStrategy exclusionStrategy, List<String> excludedFieldNames, Set<String> excludedClassNames,
-                      List<Header> globalHeaders, GsonCustomiser gsonCustomiser, boolean disableCookiesForAuthRequests,
-                      Integer connectionTimeout, Integer socketTimeout) {
+                      List<Header> globalHeaders, GsonCustomiser gsonCustomiser, boolean disableCookiesForAuthRequests, Integer connectionTimeout,
+                      Integer socketTimeout, final HttpClient client) {
         this.uri = uri;
         this.credentials = credentials;
         this.proxy = proxy;
@@ -78,6 +79,7 @@ public class WellRestedRequest {
         this.disableCookiesForAuthRequests = disableCookiesForAuthRequests;
         this.connectionTimeout = connectionTimeout;
         this.socketTimeout = socketTimeout;
+        this.client = client;
     }
 
     public static WellRestedRequestBuilder builder() {
@@ -275,14 +277,10 @@ public class WellRestedRequest {
             }
             setRequestTimeout(request);
             HttpResponse httpResponse;
+            Executor executor = getExecutor();
             if (credentials != null) {
-                Executor executor;
                 if (disableCookiesForAuthRequests) {
-                    executor = Executor.newInstance(internalStatelessHttpClient);
-                    executor.clearCookies();
-                    executor.clearAuth();
-                } else {
-                    executor = Executor.newInstance();
+                    executor.clearCookies().clearAuth();
                 }
 
                 if (uri.getPort() > 0) {
@@ -292,10 +290,8 @@ public class WellRestedRequest {
                 }
 
                 executor.auth(credentials);
-                httpResponse = executor.execute(request).returnResponse();
-            } else {
-                httpResponse = request.execute().returnResponse();
             }
+            httpResponse = executor.execute(request).returnResponse();
             return WellRestedUtil.buildWellRestedResponse(httpResponse, uri.toString());
         } catch (ConnectTimeoutException cte) {
             log.error("Connection timeout for request: {}", request.toString(), cte);
@@ -307,6 +303,18 @@ public class WellRestedRequest {
             log.error("Error occurred after executing the request to: {}", uri.toString(), ex);
         }
         return WellRestedUtil.buildErrorWellRestedResponse(uri.toString());
+    }
+
+    private Executor getExecutor() {
+        if (client != null) {
+            return Executor.newInstance(client);
+        }
+
+        if (credentials != null && disableCookiesForAuthRequests) {
+            return Executor.newInstance(internalStatelessHttpClient);
+        }
+
+        return Executor.newInstance();
     }
 
     private void setRequestTimeout(Request request) {

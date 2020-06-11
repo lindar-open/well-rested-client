@@ -12,6 +12,7 @@ import org.apache.http.Header;
 import org.apache.http.HttpHost;
 import org.apache.http.auth.Credentials;
 import org.apache.http.auth.UsernamePasswordCredentials;
+import org.apache.http.client.HttpClient;
 import org.apache.http.entity.ContentType;
 import org.apache.http.message.BasicHeader;
 
@@ -42,6 +43,7 @@ public class WellRestedRequestBuilder {
     private Integer                timeout;
     private Integer                connectionTimeout;
     private Integer                socketTimeout;
+    private HttpClient             client;
 
     public WellRestedRequestBuilder uri(URI uri) {
         this.uri = uri;
@@ -258,6 +260,11 @@ public class WellRestedRequestBuilder {
         return this;
     }
 
+    public WellRestedRequestBuilder client(HttpClient client) {
+        this.client = client;
+        return this;
+    }
+
     /**
      * Sets both the socket timeout and connection timeout to infinite (timeout value of zero)
      * See the different properties for more details
@@ -285,6 +292,6 @@ public class WellRestedRequestBuilder {
         return new WellRestedRequest(this.uri, this.credentials, this.proxy, this.dateSerializer, this.dateDeserializer,
                                      this.dateFormat, this.exclusionStrategy, this.excludedFieldNames, this.excludedClassNames,
                                      this.globalHeaders, this.gsonCustomiser, this.disableCookiesForAuthRequests,
-                                     this.connectionTimeout, this.socketTimeout);
+                                     this.connectionTimeout, this.socketTimeout, this.client);
     }
 }
