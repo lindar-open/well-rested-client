@@ -1,8 +1,6 @@
 package com.lindar.wellrested.vo;
 
-import com.google.gson.GsonBuilder;
 import com.google.gson.reflect.TypeToken;
-import com.lindar.wellrested.json.GenericType;
 import com.lindar.wellrested.json.JsonMapper;
 import com.lindar.wellrested.util.type.CollectionWrapperType;
 import com.lindar.wellrested.util.type.ResultWrapperType;
