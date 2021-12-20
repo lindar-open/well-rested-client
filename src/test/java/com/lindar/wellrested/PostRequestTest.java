@@ -2,6 +2,7 @@ package com.lindar.wellrested;
 
 import com.github.tomakehurst.wiremock.junit.WireMockRule;
 import com.google.gson.Gson;
+import com.lindar.wellrested.json.GsonJsonMapper;
 import com.lindar.wellrested.util.BasicExclusionStrategy;
 import com.lindar.wellrested.vo.WellRestedResponse;
 import org.apache.http.Header;
@@ -72,8 +73,10 @@ public class PostRequestTest {
         fieldExclusion.add("title");
         BasicExclusionStrategy excStrat = new BasicExclusionStrategy(fieldExclusion);
 
-        builder.exclusionStrategy(excStrat);
-        WellRestedResponse response = builder.url("http://localhost:8089/posttest/second").excludeFields(fieldExclusion).build().post().jsonContent(postData).submit();
+        builder.jsonMapper(new GsonJsonMapper.Builder()
+                                   .exclusionStrategy(excStrat)
+                                   .build());
+        WellRestedResponse response = builder.url("http://localhost:8089/posttest/second").build().post().jsonContent(postData).submit();
 
         assertEquals(200, response.getStatusCode());
         assertEquals("{ \"Test\" : \"Successful\" }", response.getServerResponse());

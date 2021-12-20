@@ -1,5 +1,6 @@
 package com.lindar.wellrested.util;
 
+import com.lindar.wellrested.json.JsonMapper;
 import com.lindar.wellrested.vo.WellRestedResponse;
 import lombok.experimental.UtilityClass;
 import lombok.extern.slf4j.Slf4j;
@@ -22,13 +23,13 @@ import java.util.stream.Collectors;
 @UtilityClass
 public final class WellRestedUtil {
 
-    public static WellRestedResponse buildWellRestedResponse(HttpResponse httpResponse) {
-        return buildWellRestedResponse(httpResponse, StringUtils.EMPTY);
+    public static WellRestedResponse buildWellRestedResponse(HttpResponse httpResponse, JsonMapper jsonMapper) {
+        return buildWellRestedResponse(httpResponse, StringUtils.EMPTY, jsonMapper);
     }
 
-    public static WellRestedResponse buildWellRestedResponse(HttpResponse httpResponse, String url) {
+    public static WellRestedResponse buildWellRestedResponse(HttpResponse httpResponse, String url, JsonMapper jsonMapper) {
         try {
-            WellRestedResponse wellRestedResponse = new WellRestedResponse();
+            WellRestedResponse wellRestedResponse = new WellRestedResponse(jsonMapper);
             wellRestedResponse.setCurrentURI(url);
 
             if (httpResponse.getAllHeaders() != null) {
@@ -47,27 +48,27 @@ public final class WellRestedUtil {
         } catch (IOException | ParseException ex) {
             log.error("Error occurred while building the WellRestedResponse: ", ex);
         }
-        return buildErrorWellRestedResponse(url);
+        return buildErrorWellRestedResponse(url, jsonMapper);
     }
 
-    public static WellRestedResponse buildErrorWellRestedResponse(String url) {
-        WellRestedResponse wellRestedResponse = new WellRestedResponse();
+    public static WellRestedResponse buildErrorWellRestedResponse(String url, JsonMapper jsonMapper) {
+        WellRestedResponse wellRestedResponse = new WellRestedResponse(jsonMapper);
         wellRestedResponse.setCurrentURI(url);
         wellRestedResponse.setServerResponse(StringUtils.EMPTY);
         wellRestedResponse.setStatusCode(500);
         return wellRestedResponse;
     }
 
-    public static WellRestedResponse buildSocketTimeoutWellRestedResponse(String url) {
-        return buildTimeoutWellRestedResponse(url, true, false);
+    public static WellRestedResponse buildSocketTimeoutWellRestedResponse(String url, JsonMapper jsonMapper) {
+        return buildTimeoutWellRestedResponse(url, true, false, jsonMapper);
     }
 
-    public static WellRestedResponse buildConnectionTimeoutWellRestedResponse(String url) {
-        return buildTimeoutWellRestedResponse(url, false, true);
+    public static WellRestedResponse buildConnectionTimeoutWellRestedResponse(String url, JsonMapper jsonMapper) {
+        return buildTimeoutWellRestedResponse(url, false, true, jsonMapper);
     }
 
-    private static WellRestedResponse buildTimeoutWellRestedResponse(String url, boolean socketTimeout, boolean connectionTimeout) {
-        WellRestedResponse wellRestedResponse = new WellRestedResponse();
+    private static WellRestedResponse buildTimeoutWellRestedResponse(String url, boolean socketTimeout, boolean connectionTimeout, JsonMapper jsonMapper) {
+        WellRestedResponse wellRestedResponse = new WellRestedResponse(jsonMapper);
         wellRestedResponse.setCurrentURI(url);
         wellRestedResponse.setServerResponse(StringUtils.EMPTY);
         wellRestedResponse.setStatusCode(-1);
