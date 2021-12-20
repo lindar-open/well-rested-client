@@ -6,15 +6,18 @@ import com.google.gson.JsonSerializer;
 import com.lindar.wellrested.util.DateDeserializer;
 import com.lindar.wellrested.util.StringDateSerializer;
 import com.lindar.wellrested.util.WellRestedUtil;
+import org.apache.commons.codec.binary.Base64;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.http.Header;
 import org.apache.http.HttpHost;
 import org.apache.http.auth.Credentials;
 import org.apache.http.auth.UsernamePasswordCredentials;
+import org.apache.http.client.HttpClient;
 import org.apache.http.entity.ContentType;
 import org.apache.http.message.BasicHeader;
 
 import java.net.URI;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -22,7 +25,8 @@ import java.util.Map;
 import java.util.Set;
 
 public class WellRestedRequestBuilder {
-    private static final String CONTENT_TYPE_PARAM = "Content-Type";
+    private static final String CONTENT_TYPE_PARAM  = "Content-Type";
+    private static final String AUTHORIZATION_PARAM = "Authorization";
 
     private URI                    uri;
     private Credentials            credentials;
@@ -36,6 +40,10 @@ public class WellRestedRequestBuilder {
     private List<Header>           globalHeaders;
     private GsonCustomiser         gsonCustomiser;
     private boolean                disableCookiesForAuthRequests;
+    private Integer                timeout;
+    private Integer                connectionTimeout;
+    private Integer                socketTimeout;
+    private HttpClient             client;
 
     public WellRestedRequestBuilder uri(URI uri) {
         this.uri = uri;
@@ -183,6 +191,17 @@ public class WellRestedRequestBuilder {
         return this;
     }
 
+    public WellRestedRequestBuilder addAuthorizationGlobalHeader(String username, String password) {
+        if (this.globalHeaders == null) {
+            this.globalHeaders = new ArrayList<>();
+        }
+        String auth = username + ":" + password;
+        byte[] encodedAuth = Base64.encodeBase64(auth.getBytes(StandardCharsets.ISO_8859_1));
+        String authHeader = "Basic " + new String(encodedAuth);
+        this.globalHeaders.add(new BasicHeader(AUTHORIZATION_PARAM, authHeader));
+        return this;
+    }
+
     /**
      * Use this method to clear all the cookies when doing secure requests (with Credentials).
      * This is helpful in preventing SESSION cookie cache and clash
@@ -193,11 +212,86 @@ public class WellRestedRequestBuilder {
     }
 
     /**
+     * Determines both the socket timeout and connection timeout to this value in milliseconds.
+     * See the different properties for more details
+     * <p>
+     * A timeout value of zero is interpreted as an infinite timeout.
+     * A negative value is interpreted as undefined (system default).
+     * </p>
+     * <p>
+     * Default: {@code 5000}
+     * </p>
+     */
+    public WellRestedRequestBuilder timeout(Integer timeout) {
+        this.connectionTimeout = timeout;
+        this.socketTimeout = timeout;
+        return this;
+    }
+
+    /**
+     * Determines the timeout in milliseconds until a connection is established.
+     * <p>
+     * A timeout value of zero is interpreted as an infinite timeout.
+     * A negative value is interpreted as undefined (system default).
+     * </p>
+     * <p>
+     * Default: {@code 5000}
+     * </p>
+     */
+    public WellRestedRequestBuilder connectionTimeout(Integer connectionTimeout) {
+        this.connectionTimeout = connectionTimeout;
+        return this;
+    }
+
+    /**
+     * Defines the socket timeout ({@code SO_TIMEOUT}) in milliseconds,
+     * which is the timeout for waiting for data  or, put differently,
+     * a maximum period inactivity between two consecutive data packets).
+     * <p>
+     * A timeout value of zero is interpreted as an infinite timeout.
+     * A negative value is interpreted as undefined (system default).
+     * </p>
+     * <p>
+     * Default: {@code 5000}
+     * </p>
+     */
+    public WellRestedRequestBuilder socketTimeout(Integer socketTimeout) {
+        this.socketTimeout = socketTimeout;
+        return this;
+    }
+
+    public WellRestedRequestBuilder client(HttpClient client) {
+        this.client = client;
+        return this;
+    }
+
+    /**
+     * Sets both the socket timeout and connection timeout to infinite (timeout value of zero)
+     * See the different properties for more details
+     */
+    public WellRestedRequestBuilder infiniteTimeout() {
+        this.connectionTimeout = 0;
+        this.socketTimeout = 0;
+        return this;
+    }
+
+    /**
+     * Sets both the socket timeout and connection timeout to system default (timeout value of -1)
+     * See the different properties for more details
+     */
+    public WellRestedRequestBuilder systemDefaultTimeout() {
+        this.connectionTimeout = -1;
+        this.socketTimeout = -1;
+        return this;
+    }
+
+    /**
      * NOTE: keep in mind that date serializers and deserializers and all exclusion strategies are available only for JSON content
      */
     public WellRestedRequest build() {
         return new WellRestedRequest(this.uri, this.credentials, this.proxy, this.dateSerializer, this.dateDeserializer,
                                      this.dateFormat, this.exclusionStrategy, this.excludedFieldNames, this.excludedClassNames,
-                                     this.globalHeaders, this.gsonCustomiser, this.disableCookiesForAuthRequests);
+                                     this.globalHeaders, this.gsonCustomiser, this.disableCookiesForAuthRequests,
+                                     this.connectionTimeout, this.socketTimeout, this.client);
     }
 }

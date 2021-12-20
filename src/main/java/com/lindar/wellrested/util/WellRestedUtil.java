@@ -58,6 +58,24 @@ public final class WellRestedUtil {
         return wellRestedResponse;
     }
 
+    public static WellRestedResponse buildSocketTimeoutWellRestedResponse(String url) {
+        return buildTimeoutWellRestedResponse(url, true, false);
+    }
+
+    public static WellRestedResponse buildConnectionTimeoutWellRestedResponse(String url) {
+        return buildTimeoutWellRestedResponse(url, false, true);
+    }
+
+    private static WellRestedResponse buildTimeoutWellRestedResponse(String url, boolean socketTimeout, boolean connectionTimeout) {
+        WellRestedResponse wellRestedResponse = new WellRestedResponse();
+        wellRestedResponse.setCurrentURI(url);
+        wellRestedResponse.setServerResponse(StringUtils.EMPTY);
+        wellRestedResponse.setStatusCode(-1);
+        wellRestedResponse.setSocketTimeout(socketTimeout);
+        wellRestedResponse.setConnectionTimeout(connectionTimeout);
+        return wellRestedResponse;
+    }
+
     public static void fillStatusCodeForResponse(WellRestedResponse response, HttpResponse httpResponse) {
         int responseStatusCode = httpResponse.getStatusLine().getStatusCode();
         if (responseStatusCode != 200) {

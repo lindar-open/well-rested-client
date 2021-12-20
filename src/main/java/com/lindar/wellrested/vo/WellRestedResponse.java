@@ -30,22 +30,14 @@ import java.util.Map;
 public class WellRestedResponse implements Serializable {
     private static final long serialVersionUID = 51255400364556607L;
 
-    @Getter @Setter
-    private String serverResponse = StringUtils.EMPTY;
-
-    @Getter @Setter
-    private int statusCode;
-
-    @Getter @Setter
-    private String currentURI;
-    
-    @Setter
-    private List<String> dateFormats;
-
-    @Getter @Setter
-    private Map<String,String> responseHeaders;
-
-    private GsonCustomiser gsonCustomiser;
+    private @Getter @Setter String              serverResponse = StringUtils.EMPTY;
+    private @Getter @Setter int                 statusCode;
+    private @Getter @Setter String              currentURI;
+    private @Setter         List<String>        dateFormats;
+    private @Getter @Setter Map<String, String> responseHeaders;
+    private @Getter @Setter boolean             socketTimeout;
+    private @Getter @Setter boolean             connectionTimeout;
+    private                 GsonCustomiser      gsonCustomiser;
 
     public WellRestedResponse setDateFormat(String format) {
         this.dateFormats = Collections.singletonList(format);
@@ -78,7 +70,7 @@ public class WellRestedResponse implements Serializable {
     }
 
     public class JsonResponseMapper {
-        private Class<?> deserializedObjClass;
+        private Class<?>            deserializedObjClass;
         private JsonDeserializer<?> deserializer;
 
         public JsonResponseMapper setDateFormats(List<String> formats) {
@@ -92,7 +84,7 @@ public class WellRestedResponse implements Serializable {
             return this;
         }
 
-        public JsonResponseMapper gsonCustomiser(GsonCustomiser gsonCustomiser){
+        public JsonResponseMapper gsonCustomiser(GsonCustomiser gsonCustomiser) {
             setGsonCustomiser(gsonCustomiser);
             return this;
         }
@@ -184,27 +176,35 @@ public class WellRestedResponse implements Serializable {
             dateDeserializer = new DateDeserializer();
         }
         gsonBuilder.registerTypeAdapter(Date.class, dateDeserializer);
-        if(gsonCustomiser != null){
+        if (gsonCustomiser != null) {
             gsonCustomiser.customise(gsonBuilder);
         }
         return gsonBuilder;
     }
 
-    private WellRestedResponse setGsonCustomiser(GsonCustomiser gsonCustomiser){
+    private WellRestedResponse setGsonCustomiser(GsonCustomiser gsonCustomiser) {
         this.gsonCustomiser = gsonCustomiser;
         return this;
     }
 
     /**
      * This method verifies that the server response is not blank (to allow casting) and that the status code is lower
-     * than 300; Please note that a response might still be valid even when a server response is blank but in that case
+     * than 300 but not -1 (which would imply a client timeout); Please note that a response might still be valid even when a server response is blank but in that case
      * you don't need to cast anymore and you don't need to call this method. When in doubt please write your own
      * validation method.
-     *
-     * @return
      */
     public boolean isValid() {
-        return StringUtils.isNotBlank(serverResponse) && statusCode < 300;
+        return StringUtils.isNotBlank(serverResponse) && statusCode < 300 && statusCode != -1;
+    }
+
+    /**
+     * This method verifies if the response was a client timeout
+     * (the connection was closed by the client either because it took too long to connect or it took too long to get the data)
+     * <br/>
+     * You can use the {@code isSocketTimeout} or {@code isConnectionTimeout} flags to differentiate between the 2 types of timeout
+     */
+    public boolean isClientTimeout() {
+        return statusCode == -1 && (socketTimeout || connectionTimeout);
     }
 
     /**
