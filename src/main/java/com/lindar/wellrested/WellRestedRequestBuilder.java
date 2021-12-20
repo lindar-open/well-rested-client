@@ -1,49 +1,36 @@
 package com.lindar.wellrested;
 
-import com.google.gson.ExclusionStrategy;
-import com.google.gson.JsonDeserializer;
-import com.google.gson.JsonSerializer;
-import com.lindar.wellrested.util.DateDeserializer;
-import com.lindar.wellrested.util.StringDateSerializer;
+import com.lindar.wellrested.json.JsonMapper;
 import com.lindar.wellrested.util.WellRestedUtil;
 import org.apache.commons.codec.binary.Base64;
-import org.apache.commons.lang3.StringUtils;
 import org.apache.http.Header;
 import org.apache.http.HttpHost;
 import org.apache.http.auth.Credentials;
 import org.apache.http.auth.UsernamePasswordCredentials;
-import org.apache.http.client.HttpClient;
 import org.apache.http.entity.ContentType;
 import org.apache.http.message.BasicHeader;
 
 import java.net.URI;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 
 public class WellRestedRequestBuilder {
     private static final String CONTENT_TYPE_PARAM  = "Content-Type";
     private static final String AUTHORIZATION_PARAM = "Authorization";
 
-    private URI                    uri;
-    private Credentials            credentials;
-    private HttpHost               proxy;
-    private JsonSerializer<Date>   dateSerializer   = new StringDateSerializer();
-    private JsonDeserializer<Date> dateDeserializer = new DateDeserializer();
-    private String                 dateFormat       = StringUtils.EMPTY;
-    private ExclusionStrategy      exclusionStrategy;
-    private List<String>           excludedFieldNames;
-    private Set<String>            excludedClassNames;
-    private List<Header>           globalHeaders;
-    private GsonCustomiser         gsonCustomiser;
-    private boolean                disableCookiesForAuthRequests;
-    private Integer                timeout;
-    private Integer                connectionTimeout;
-    private Integer                socketTimeout;
-    private HttpClient             client;
+    private URI          uri;
+    private Credentials  credentials;
+    private HttpHost     proxy;
+    private List<Header> globalHeaders;
+    private boolean      disableCookiesForAuthRequests;
+    private Integer      connectionTimeout;
+    private Integer      socketTimeout;
+    private JsonMapper   jsonMapper;
+
+    public WellRestedRequestBuilder() {
+    }
 
     public WellRestedRequestBuilder uri(URI uri) {
         this.uri = uri;
@@ -72,73 +59,6 @@ public class WellRestedRequestBuilder {
 
     public WellRestedRequestBuilder proxy(String proxyHost, int proxyPort, String scheme) {
         this.proxy = new HttpHost(proxyHost, proxyPort, scheme);
-        return this;
-    }
-
-    public WellRestedRequestBuilder gsonCustomiser(GsonCustomiser gsonCustomiser) {
-        this.gsonCustomiser = gsonCustomiser;
-        return this;
-    }
-
-    /**
-     * Use this method to override the default dateSerializer.
-     * The default one is {@link com.lindar.wellrested.util.StringDateSerializer}
-     * <br/>
-     * NOTE: Well Rested Client provides 2 serializers which can be passed as parameters for this method: <br/>
-     * - {@link com.lindar.wellrested.util.StringDateSerializer} <br/>
-     * - {@link com.lindar.wellrested.util.LongDateSerializer} <br/>
-     * If neither satisfies your requirements, please write your own.
-     */
-    public WellRestedRequestBuilder dateSerializer(JsonSerializer<Date> dateSerializer) {
-        this.dateSerializer = dateSerializer;
-        return this;
-    }
-
-    /**
-     * Use this method to override the default dateSerializer.
-     * The default one is {@link com.lindar.wellrested.util.DateDeserializer}
-     * <br/>
-     * If the default one doesn't satisfy your requirements, please write your own.
-     */
-    public WellRestedRequestBuilder dateDeserializer(JsonDeserializer<Date> dateDeserializer) {
-        this.dateDeserializer = dateDeserializer;
-        return this;
-    }
-
-    /**
-     * Use this method to provide a date format that will be used when doing both the serialization and deserialization. <br/>
-     * If you require different formats for serialization and deserialization, please use the <b>setDateSerializer</b> and <b>setDateDeserializer</b> methods. <br/>
-     * By default this class uses {@link com.lindar.wellrested.util.StringDateSerializer} and {@link com.lindar.wellrested.util.DateDeserializer} <br/>
-     * <b>PLEASE NOTE:</b> By setting a dateFormat, you <b>override</b> any other serializer and deserializer!
-     */
-    public WellRestedRequestBuilder dateFormat(String dateFormat) {
-        this.dateFormat = dateFormat;
-        return this;
-    }
-
-    /**
-     * Use this method to provide a Gson serialisation exclusion strategy.
-     * If you just want to exclude some field names or a class you can use the excludeFields and excludeClasses methods easier.
-     * Keep in mind that this exclusion strategy overrides the other ones
-     */
-    public WellRestedRequestBuilder exclusionStrategy(ExclusionStrategy exclusionStrategy) {
-        this.exclusionStrategy = exclusionStrategy;
-        return this;
-    }
-
-    /**
-     * Use this method to exclude some field names from the Gson serialisation process
-     */
-    public WellRestedRequestBuilder excludeFields(List<String> fieldNames) {
-        this.excludedFieldNames = fieldNames;
-        return this;
-    }
-
-    /**
-     * Use this method to exclude some class names from the Gson serialisation process
-     */
-    public WellRestedRequestBuilder excludeClasses(Set<String> classNames) {
-        this.excludedClassNames = classNames;
         return this;
     }
 
@@ -260,11 +180,6 @@ public class WellRestedRequestBuilder {
         return this;
     }
 
-    public WellRestedRequestBuilder client(HttpClient client) {
-        this.client = client;
-        return this;
-    }
-
     /**
      * Sets both the socket timeout and connection timeout to infinite (timeout value of zero)
      * See the different properties for more details
@@ -285,13 +200,14 @@ public class WellRestedRequestBuilder {
         return this;
     }
 
-    /**
-     * NOTE: keep in mind that date serializers and deserializers and all exclusion strategies are available only for JSON content
-     */
+    public WellRestedRequestBuilder jsonMapper(JsonMapper jsonMapper) {
+        this.jsonMapper = jsonMapper;
+        return this;
+    }
+
     public WellRestedRequest build() {
-        return new WellRestedRequest(this.uri, this.credentials, this.proxy, this.dateSerializer, this.dateDeserializer,
-                                     this.dateFormat, this.exclusionStrategy, this.excludedFieldNames, this.excludedClassNames,
-                                     this.globalHeaders, this.gsonCustomiser, this.disableCookiesForAuthRequests,
-                                     this.connectionTimeout, this.socketTimeout, this.client);
+        return new WellRestedRequest(this.uri, this.credentials, this.proxy,
+                                     this.globalHeaders, this.disableCookiesForAuthRequests,
+                                     this.connectionTimeout, this.socketTimeout, this.jsonMapper);
     }
 }

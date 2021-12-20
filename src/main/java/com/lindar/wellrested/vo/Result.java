@@ -119,7 +119,7 @@ public class Result<T> implements Serializable {
      *
      * @param function
      * @param defaultVal
-     * @return
+     * @return the result if successful and not null or execute function and return default result
      */
     public T orElseDoAndReturnDefault(Runnable function, T defaultVal) {
         if (isSuccessAndNotNull()) {
@@ -133,7 +133,7 @@ public class Result<T> implements Serializable {
      * The consumer function receives the entire result object as parameter in case you want to log or manage the error message or code in any way.
      * @param consumer
      * @param defaultVal
-     * @return
+     * @return the result if successful and not null or execute consumer and return default result
      */
     public T orElseDoAndReturnDefault(Consumer<Result<T>> consumer, T defaultVal) {
         if (isSuccessAndNotNull()) {
@@ -156,7 +156,7 @@ public class Result<T> implements Serializable {
      * Returns defaultVal only if the actual result is not successful and data is null.
      * @param consumer
      * @param defaultVal
-     * @return
+     * @return the result of the consumer or defaultVal if the consumer is null or failed
      */
     public T execute(Consumer<Result<T>> consumer, T defaultVal) {
         consumer.accept(this);

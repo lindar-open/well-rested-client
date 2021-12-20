@@ -3,6 +3,7 @@ package com.lindar.wellrested;
 import com.github.tomakehurst.wiremock.junit.WireMockRule;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
+import com.lindar.wellrested.json.GsonJsonMapper;
 import com.lindar.wellrested.util.BasicExclusionStrategy;
 import com.lindar.wellrested.util.LongDateSerializer;
 import com.lindar.wellrested.vo.WellRestedResponse;
@@ -29,9 +30,6 @@ public class RequestBuilderTest {
     @Before
     public void setupTests(){
         builder = new WellRestedRequestBuilder();
-        builder.excludeFields(new ArrayList<String>());
-        builder.excludeClasses(new HashSet<String>());
-
         stubFor(get(urlMatching("/tests/first")).atPriority(0).willReturn(aResponse().withStatus(200).withBody("First Test: Success")));
         stubFor(get(urlMatching("/tests/.*")).atPriority(10).willReturn(aResponse().withStatus(404).withBody("Nothing to GET here.")));
     }

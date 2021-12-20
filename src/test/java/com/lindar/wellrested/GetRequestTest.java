@@ -1,6 +1,7 @@
 package com.lindar.wellrested;
 
 import com.github.tomakehurst.wiremock.junit.WireMockRule;
+import com.github.tomakehurst.wiremock.matching.AbsentPattern;
 import com.github.tomakehurst.wiremock.matching.StringValuePattern;
 import com.github.tomakehurst.wiremock.stubbing.ServeEvent;
 import com.lindar.wellrested.vo.WellRestedResponse;
@@ -180,7 +181,7 @@ public class GetRequestTest {
 
         Assert.assertEquals(200, getCookieResponse.getStatusCode());
 
-        verify(getRequestedFor(urlMatching("/gettest/cookies/2")).withCookie("test", StringValuePattern.ABSENT).withHeader("Authorization", containing("Basic")));
+        verify(getRequestedFor(urlMatching("/gettest/cookies/2")).withCookie("test", AbsentPattern.ABSENT).withHeader("Authorization", containing("Basic")));
     }
 
     @Test
