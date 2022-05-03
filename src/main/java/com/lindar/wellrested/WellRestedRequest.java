@@ -252,6 +252,43 @@ public class WellRestedRequest {
         }
     }
 
+    //********************* PATCH *******************************************************************/
+
+    /**
+     * Allows you to configure and submit PATCH requests
+     */
+    public PatchRequest patch() {
+        return new PatchRequest();
+    }
+
+    public class PatchRequest implements RequestResource, HeadersSupport, HttpEntitySupport {
+        private List<Header> headers;
+        private HttpEntity   httpEntity;
+
+        /**
+         * Serialise a java object into JSON String and add it to the request body
+         */
+        public <T> PatchRequest jsonContent(T object) {
+            return jsonContent(jsonMapper.writeValue(object));
+        }
+
+        @Override
+        public PatchRequest headers(List<Header> headers) {
+            this.headers = headers;
+            return this;
+        }
+
+        @Override
+        public PatchRequest httpEntity(HttpEntity httpEntity) {
+            this.httpEntity = httpEntity;
+            return this;
+        }
+
+        @Override
+        public WellRestedResponse submit() {
+            return submitRequest(Request.Patch(uri), httpEntity, headers);
+        }
+    }
 
     //******************** GENERAL *******************************************************************/
 
