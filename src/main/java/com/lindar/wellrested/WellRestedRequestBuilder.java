@@ -7,6 +7,7 @@ import org.apache.http.Header;
 import org.apache.http.HttpHost;
 import org.apache.http.auth.Credentials;
 import org.apache.http.auth.UsernamePasswordCredentials;
+import org.apache.http.client.HttpClient;
 import org.apache.http.entity.ContentType;
 import org.apache.http.message.BasicHeader;
 
@@ -28,6 +29,7 @@ public class WellRestedRequestBuilder {
     private Integer      connectionTimeout;
     private Integer      socketTimeout;
     private JsonMapper   jsonMapper;
+    private HttpClient   httpClient;
 
     public WellRestedRequestBuilder() {
     }
@@ -205,9 +207,14 @@ public class WellRestedRequestBuilder {
         return this;
     }
 
+    public WellRestedRequestBuilder customHttpClient(HttpClient httpClient) {
+        this.httpClient = httpClient;
+        return this;
+    }
+
     public WellRestedRequest build() {
         return new WellRestedRequest(this.uri, this.credentials, this.proxy,
                                      this.globalHeaders, this.disableCookiesForAuthRequests,
-                                     this.connectionTimeout, this.socketTimeout, this.jsonMapper);
+                                     this.connectionTimeout, this.socketTimeout, this.jsonMapper, this.httpClient);
     }
 }
