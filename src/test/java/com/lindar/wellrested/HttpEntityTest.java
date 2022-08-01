@@ -2,7 +2,6 @@ package com.lindar.wellrested;
 
 import com.github.tomakehurst.wiremock.junit.WireMockRule;
 import com.lindar.wellrested.vo.WellRestedResponse;
-import com.lindar.wellrested.xml.WellRestedXMLUtil;
 import org.apache.http.NameValuePair;
 import org.apache.http.entity.ContentType;
 import org.junit.Before;
@@ -11,8 +10,6 @@ import org.junit.ClassRule;
 import org.junit.Test;
 
 import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
 import java.nio.charset.Charset;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -52,32 +49,6 @@ public class HttpEntityTest {
         } catch (InterruptedException e) {
             e.printStackTrace();
         }
-    }
-
-    @Test
-    public void testXmlContent(){
-        XMLEntry xmlData = new XMLEntry("testName", "testTitle", "testBody", 1);
-        String xmlDataString = WellRestedXMLUtil.fromObjectToString(xmlData);
-
-        WellRestedResponse response1 = builder.url("http://localhost:8089/entityTest/xml").build().post().xmlContent(xmlData).submit();
-        WellRestedResponse response2 = builder.url("http://localhost:8089/entityTest/xml").build().post().xmlContent(xmlDataString).submit();
-
-
-        assertEquals(201, response1.getStatusCode());
-        assertEquals("{ \"Test\" : \"Successful\" }", response1.getServerResponse());
-        assertEquals(201, response2.getStatusCode());
-        assertEquals("{ \"Test\" : \"Successful\" }", response2.getServerResponse());
-    }
-
-    @Test
-    public void testContentMethod(){
-        XMLEntry xmlData = new XMLEntry("testName", "testTitle", "testBody", 1);
-        String xmlDataString = WellRestedXMLUtil.fromObjectToString(xmlData);
-
-        WellRestedResponse response1 = builder.url("http://localhost:8089/entityTest/xml").build().post().content(xmlDataString, ContentType.APPLICATION_XML).submit();
-
-        assertEquals(201, response1.getStatusCode());
-        assertEquals("{ \"Test\" : \"Successful\" }", response1.getServerResponse());
     }
 
     @Test
