@@ -1,6 +1,5 @@
 package com.lindar.wellrested;
 
-import com.lindar.wellrested.xml.WellRestedXMLUtil;
 import org.apache.http.HttpEntity;
 import org.apache.http.NameValuePair;
 import org.apache.http.client.entity.UrlEncodedFormEntity;
@@ -25,12 +24,6 @@ interface HttpEntitySupport {
 
     default <T extends RequestResource> T xmlContent(String xml) {
         return httpEntity(new StringEntity(xml, ContentType.APPLICATION_XML));
-    }
-
-    /** Serialise a java object into XML String and add it to the request body.
-     * NOTE: keep in mind that date serializers and deserializers and all exclusion strategies are available only for JSON content  */
-    default <T extends RequestResource, U> T xmlContent(U object) {
-        return xmlContent(WellRestedXMLUtil.fromObjectToString(object));
     }
 
     default <T extends RequestResource> T content(String content, ContentType contentType) {

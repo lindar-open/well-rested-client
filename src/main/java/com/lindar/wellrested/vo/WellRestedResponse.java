@@ -4,7 +4,6 @@ import com.google.gson.reflect.TypeToken;
 import com.lindar.wellrested.json.JsonMapper;
 import com.lindar.wellrested.util.type.CollectionWrapperType;
 import com.lindar.wellrested.util.type.ResultWrapperType;
-import com.lindar.wellrested.xml.WellRestedXMLUtil;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.Setter;
@@ -33,23 +32,8 @@ public class WellRestedResponse implements Serializable {
     private @Getter @Setter boolean             connectionTimeout;
     private final           JsonMapper          jsonMapper;
 
-    private XmlResponseMapper fromXml = new XmlResponseMapper();
-
     public WellRestedResponse(JsonMapper jsonMapper) {
         this.jsonMapper = jsonMapper;
-    }
-
-    /**
-     * Allows you to manage XML responses and map them to Java objects
-     */
-    public XmlResponseMapper fromXml() {
-        return this.fromXml;
-    }
-
-    public class XmlResponseMapper {
-        public <T> T castTo(Class<T> objClass) {
-            return WellRestedXMLUtil.fromStringToObject(serverResponse, objClass);
-        }
     }
 
     private JsonResponseMapper fromJson = new JsonResponseMapper();
