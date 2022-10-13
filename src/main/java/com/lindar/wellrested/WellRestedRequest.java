@@ -29,7 +29,7 @@ public class WellRestedRequest {
     public static int DEFAULT_TIMEOUT = 10000;
 
     private static final JsonMapper DEFAULT_JSON_MAPPER = new GsonJsonMapper.Builder().build(); // use the builder so some defaults are set
-    private static final HttpClient internalStatelessHttpClient;
+    private static final HttpClient INTERNAL_STATELESS_HTTP_CLIENT;
 
     private final URI          uri;
     private final Credentials  credentials;
@@ -42,7 +42,12 @@ public class WellRestedRequest {
     private       HttpClient   client;
 
     static {
-        internalStatelessHttpClient = HttpClientBuilder.create().disableCookieManagement().build();
+        INTERNAL_STATELESS_HTTP_CLIENT = HttpClientBuilder
+                .create()
+                .disableCookieManagement()
+                .setMaxConnPerRoute(100)
+                .setMaxConnTotal(200)
+                .build();
         //.disableAuthCaching()
     }
 
@@ -343,7 +348,7 @@ public class WellRestedRequest {
         }
 
         if (credentials != null && disableCookiesForAuthRequests) {
-            return Executor.newInstance(internalStatelessHttpClient);
+            return Executor.newInstance(INTERNAL_STATELESS_HTTP_CLIENT);
         }
 
         return Executor.newInstance();
