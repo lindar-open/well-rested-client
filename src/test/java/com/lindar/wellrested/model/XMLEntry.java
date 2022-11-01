@@ -1,4 +1,4 @@
-package com.lindar.wellrested;
+package com.lindar.wellrested.model;
 
 import javax.xml.bind.annotation.XmlAttribute;
 import javax.xml.bind.annotation.XmlElement;

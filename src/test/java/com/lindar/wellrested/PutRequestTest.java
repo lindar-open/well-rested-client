@@ -1,40 +1,30 @@
 package com.lindar.wellrested;
 
-import com.github.tomakehurst.wiremock.junit.WireMockRule;
 import com.google.gson.Gson;
+import com.lindar.wellrested.model.PHEntry;
 import com.lindar.wellrested.vo.WellRestedResponse;
-import org.apache.http.Header;
-import org.apache.http.message.BasicHeader;
-import org.junit.*;
+import org.apache.hc.core5.http.Header;
+import org.apache.hc.core5.http.message.BasicHeader;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.concurrent.TimeUnit;
 
-import static com.github.tomakehurst.wiremock.client.WireMock.*;
-import static org.junit.Assert.assertEquals;
+import static com.github.tomakehurst.wiremock.client.WireMock.aResponse;
+import static com.github.tomakehurst.wiremock.client.WireMock.containing;
+import static com.github.tomakehurst.wiremock.client.WireMock.matching;
+import static com.github.tomakehurst.wiremock.client.WireMock.put;
+import static com.github.tomakehurst.wiremock.client.WireMock.putRequestedFor;
+import static com.github.tomakehurst.wiremock.client.WireMock.stubFor;
+import static com.github.tomakehurst.wiremock.client.WireMock.urlEqualTo;
+import static com.github.tomakehurst.wiremock.client.WireMock.urlMatching;
+import static com.github.tomakehurst.wiremock.client.WireMock.verify;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
+@ExtendWith(TestEnvironment.class)
 public class PutRequestTest {
-
-    WellRestedRequestBuilder builder = new WellRestedRequestBuilder();
-
-    @ClassRule
-    public static WireMockRule wireMockRule = new WireMockRule(8089);
-
-    @Before
-    public void setupConnections(){
-        builder = new WellRestedRequestBuilder();
-    }
-
-    @BeforeClass
-    public static void waitToStart(){
-        try {
-            TimeUnit.SECONDS.sleep(1);
-        } catch (InterruptedException e) {
-            e.printStackTrace();
-        }
-    }
-
+    private final WellRestedRequestBuilder builder = new WellRestedRequestBuilder();
 
     @Test
     public void testSimplePut(){

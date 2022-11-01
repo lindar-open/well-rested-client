@@ -1,12 +1,11 @@
-package com.lindar.wellrested;
+package com.lindar.wellrested.gson;
 
 import com.google.gson.GsonBuilder;
+import com.lindar.wellrested.GsonCustomiser;
 import com.lindar.wellrested.util.BasicExclusionStrategy;
 
 import java.util.ArrayList;
-import java.util.HashSet;
 import java.util.List;
-import java.util.Set;
 
 public class TestGsonCustomiser implements GsonCustomiser {
 

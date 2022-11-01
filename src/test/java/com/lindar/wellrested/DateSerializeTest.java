@@ -1,25 +1,22 @@
 package com.lindar.wellrested;
 
-import com.github.tomakehurst.wiremock.junit.WireMockRule;
 import com.google.gson.JsonDeserializationContext;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonSerializationContext;
 import com.lindar.wellrested.json.GsonJsonMapper;
+import com.lindar.wellrested.model.DateEntry;
 import com.lindar.wellrested.util.DateDeserializer;
 import com.lindar.wellrested.util.LongDateSerializer;
 import com.lindar.wellrested.util.StringDateSerializer;
 import com.lindar.wellrested.vo.WellRestedResponse;
-import org.junit.Before;
-import org.junit.BeforeClass;
-import org.junit.ClassRule;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 
 import java.lang.reflect.Type;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
-import java.util.concurrent.TimeUnit;
 
 import static com.github.tomakehurst.wiremock.client.WireMock.aResponse;
 import static com.github.tomakehurst.wiremock.client.WireMock.containing;
@@ -29,31 +26,12 @@ import static com.github.tomakehurst.wiremock.client.WireMock.postRequestedFor;
 import static com.github.tomakehurst.wiremock.client.WireMock.stubFor;
 import static com.github.tomakehurst.wiremock.client.WireMock.urlMatching;
 import static com.github.tomakehurst.wiremock.client.WireMock.verify;
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.Mockito.mock;
 
+@ExtendWith(TestEnvironment.class)
 public class DateSerializeTest {
-
-    WellRestedRequestBuilder builder;
-
-    @ClassRule
-    public static WireMockRule wireMockRule = new WireMockRule(8089);
-
-    @Before
-    public void setupTests() {
-
-        builder = new WellRestedRequestBuilder();
-
-    }
-
-    @BeforeClass
-    public static void waitToStart() {
-        try {
-            TimeUnit.SECONDS.sleep(1);
-        } catch (InterruptedException e) {
-            e.printStackTrace();
-        }
-    }
+    private final WellRestedRequestBuilder builder = new WellRestedRequestBuilder();
 
     @Test
     public void stringSerializeTest() {

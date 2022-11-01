@@ -3,13 +3,13 @@ package com.lindar.wellrested;
 import com.lindar.wellrested.json.JsonMapper;
 import com.lindar.wellrested.util.WellRestedUtil;
 import org.apache.commons.codec.binary.Base64;
-import org.apache.http.Header;
-import org.apache.http.HttpHost;
-import org.apache.http.auth.Credentials;
-import org.apache.http.auth.UsernamePasswordCredentials;
-import org.apache.http.client.HttpClient;
-import org.apache.http.entity.ContentType;
-import org.apache.http.message.BasicHeader;
+import org.apache.hc.client5.http.auth.Credentials;
+import org.apache.hc.client5.http.auth.UsernamePasswordCredentials;
+import org.apache.hc.client5.http.impl.classic.CloseableHttpClient;
+import org.apache.hc.core5.http.ContentType;
+import org.apache.hc.core5.http.Header;
+import org.apache.hc.core5.http.HttpHost;
+import org.apache.hc.core5.http.message.BasicHeader;
 
 import java.net.URI;
 import java.nio.charset.StandardCharsets;
@@ -21,15 +21,15 @@ public class WellRestedRequestBuilder {
     private static final String CONTENT_TYPE_PARAM  = "Content-Type";
     private static final String AUTHORIZATION_PARAM = "Authorization";
 
-    private URI          uri;
-    private Credentials  credentials;
-    private HttpHost     proxy;
-    private List<Header> globalHeaders;
-    private boolean      disableCookiesForAuthRequests;
-    private Integer      connectionTimeout;
-    private Integer      socketTimeout;
-    private JsonMapper   jsonMapper;
-    private HttpClient   httpClient;
+    private URI                 uri;
+    private Credentials         credentials;
+    private HttpHost            proxy;
+    private List<Header>        globalHeaders;
+    private boolean             disableCookiesForAuthRequests;
+    private Integer             connectionTimeout;
+    private Integer             responseTimeout;
+    private JsonMapper          jsonMapper;
+    private CloseableHttpClient httpClient;
 
     public WellRestedRequestBuilder() {
     }
@@ -50,7 +50,7 @@ public class WellRestedRequestBuilder {
     }
 
     public WellRestedRequestBuilder credentials(String username, String password) {
-        this.credentials = new UsernamePasswordCredentials(username, password);
+        this.credentials = new UsernamePasswordCredentials(username, password.toCharArray());
         return this;
     }
 
@@ -60,7 +60,7 @@ public class WellRestedRequestBuilder {
     }
 
     public WellRestedRequestBuilder proxy(String proxyHost, int proxyPort, String scheme) {
-        this.proxy = new HttpHost(proxyHost, proxyPort, scheme);
+        this.proxy = new HttpHost(scheme, proxyHost, proxyPort);
         return this;
     }
 
@@ -134,7 +134,7 @@ public class WellRestedRequestBuilder {
     }
 
     /**
-     * Determines both the socket timeout and connection timeout to this value in milliseconds.
+     * Determines both the response timeout and connection timeout to this value in milliseconds.
      * See the different properties for more details
      * <p>
      * A timeout value of zero is interpreted as an infinite timeout.
@@ -146,7 +146,7 @@ public class WellRestedRequestBuilder {
      */
     public WellRestedRequestBuilder timeout(Integer timeout) {
         this.connectionTimeout = timeout;
-        this.socketTimeout = timeout;
+        this.responseTimeout = timeout;
         return this;
     }
 
@@ -166,39 +166,30 @@ public class WellRestedRequestBuilder {
     }
 
     /**
-     * Defines the socket timeout ({@code SO_TIMEOUT}) in milliseconds,
-     * which is the timeout for waiting for data  or, put differently,
-     * a maximum period inactivity between two consecutive data packets).
-     * <p>
-     * A timeout value of zero is interpreted as an infinite timeout.
-     * A negative value is interpreted as undefined (system default).
-     * </p>
-     * <p>
-     * Default: {@code 5000}
-     * </p>
+     * Defines the response timeout in milliseconds, this is time that takes to receive a response after sending a request.
      */
-    public WellRestedRequestBuilder socketTimeout(Integer socketTimeout) {
-        this.socketTimeout = socketTimeout;
+    public WellRestedRequestBuilder responseTimeout(Integer responseTimeout) {
+        this.responseTimeout = responseTimeout;
         return this;
     }
 
     /**
-     * Sets both the socket timeout and connection timeout to infinite (timeout value of zero)
+     * Sets both the response timeout and connection timeout to infinite (timeout value of zero)
      * See the different properties for more details
      */
     public WellRestedRequestBuilder infiniteTimeout() {
         this.connectionTimeout = 0;
-        this.socketTimeout = 0;
+        this.responseTimeout = 0;
         return this;
     }
 
     /**
-     * Sets both the socket timeout and connection timeout to system default (timeout value of -1)
+     * Sets both the response timeout and connection timeout to system default (timeout value of -1)
      * See the different properties for more details
      */
     public WellRestedRequestBuilder systemDefaultTimeout() {
         this.connectionTimeout = -1;
-        this.socketTimeout = -1;
+        this.responseTimeout = -1;
         return this;
     }
 
@@ -207,7 +198,7 @@ public class WellRestedRequestBuilder {
         return this;
     }
 
-    public WellRestedRequestBuilder customHttpClient(HttpClient httpClient) {
+    public WellRestedRequestBuilder customHttpClient(CloseableHttpClient httpClient) {
         this.httpClient = httpClient;
         return this;
     }
@@ -215,6 +206,6 @@ public class WellRestedRequestBuilder {
     public WellRestedRequest build() {
         return new WellRestedRequest(this.uri, this.credentials, this.proxy,
                                      this.globalHeaders, this.disableCookiesForAuthRequests,
-                                     this.connectionTimeout, this.socketTimeout, this.jsonMapper, this.httpClient);
+                                     this.connectionTimeout, this.responseTimeout, this.jsonMapper, this.httpClient);
     }
 }

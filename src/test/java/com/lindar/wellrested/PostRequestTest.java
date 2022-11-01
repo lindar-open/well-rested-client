@@ -1,46 +1,39 @@
 package com.lindar.wellrested;
 
-import com.github.tomakehurst.wiremock.junit.WireMockRule;
-import com.google.gson.Gson;
 import com.lindar.wellrested.json.GsonJsonMapper;
+import com.lindar.wellrested.model.PHEntry;
 import com.lindar.wellrested.util.BasicExclusionStrategy;
 import com.lindar.wellrested.vo.WellRestedResponse;
-import org.apache.http.Header;
-import org.apache.http.message.BasicHeader;
-import org.junit.*;
+import org.apache.hc.core5.http.Header;
+import org.apache.hc.core5.http.message.BasicHeader;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
-import java.util.concurrent.TimeUnit;
 
-import static com.github.tomakehurst.wiremock.client.WireMock.*;
-import static org.junit.Assert.assertEquals;
+import static com.github.tomakehurst.wiremock.client.WireMock.aResponse;
+import static com.github.tomakehurst.wiremock.client.WireMock.containing;
+import static com.github.tomakehurst.wiremock.client.WireMock.matching;
+import static com.github.tomakehurst.wiremock.client.WireMock.post;
+import static com.github.tomakehurst.wiremock.client.WireMock.postRequestedFor;
+import static com.github.tomakehurst.wiremock.client.WireMock.stubFor;
+import static com.github.tomakehurst.wiremock.client.WireMock.urlEqualTo;
+import static com.github.tomakehurst.wiremock.client.WireMock.urlMatching;
+import static com.github.tomakehurst.wiremock.client.WireMock.verify;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
+@ExtendWith(TestEnvironment.class)
 public class PostRequestTest {
+    private final WellRestedRequestBuilder builder = new WellRestedRequestBuilder();
 
-    WellRestedRequestBuilder builder = new WellRestedRequestBuilder();
-    Gson g = new Gson();
-
-    @ClassRule
-    public static WireMockRule wireMockRule = new WireMockRule(8089);
-
-    @Before
-    public void setupConnections(){
-        builder = new WellRestedRequestBuilder();
-
+    @BeforeAll
+    public static void setupConnections(){
         stubFor(post(urlEqualTo("/posttest/first")).withRequestBody(containing("{\"Input\": \"True\"}")).willReturn(aResponse().withHeader("Content-Type", "application/json").withBody( "{ \"Test\" : \"Successful\" }")));
         stubFor(post(urlEqualTo("/posttest/second")).withRequestBody(containing("{\"userId\":1,\"id\":1,\"title\":\"Test Title\",\"body\":\"Test Body\"}")).willReturn(aResponse().withHeader("Content-Type", "application/json").withStatus(201).withBody( "{ \"Test\" : \"Partly Successful\" }")));
         stubFor(post(urlEqualTo("/posttest/second")).withRequestBody(containing("{\"userId\":1,\"id\":1,\"body\":\"Test Body\"}")).willReturn(aResponse().withHeader("Content-Type", "application/json").withStatus(200).withBody( "{ \"Test\" : \"Successful\" }")));
-    }
-
-    @BeforeClass
-    public static void waitToStart(){
-        try {
-            TimeUnit.SECONDS.sleep(1);
-        } catch (InterruptedException e) {
-            e.printStackTrace();
-        }
     }
 
     @Test

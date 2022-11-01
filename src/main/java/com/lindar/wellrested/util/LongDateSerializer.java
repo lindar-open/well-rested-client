@@ -5,9 +5,10 @@ import com.google.gson.JsonParseException;
 import com.google.gson.JsonPrimitive;
 import com.google.gson.JsonSerializationContext;
 import com.google.gson.JsonSerializer;
+import lombok.extern.slf4j.Slf4j;
+
 import java.lang.reflect.Type;
 import java.util.Date;
-import lombok.extern.slf4j.Slf4j;
 
 /**
  * This class serializes all date objects to long (date.getTime())
