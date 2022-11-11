@@ -5,12 +5,13 @@ import com.lindar.wellrested.vo.WellRestedResponse;
 import lombok.experimental.UtilityClass;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
-import org.apache.http.Header;
-import org.apache.http.HttpResponse;
-import org.apache.http.NameValuePair;
-import org.apache.http.ParseException;
-import org.apache.http.message.BasicHeader;
-import org.apache.http.util.EntityUtils;
+import org.apache.hc.core5.http.ClassicHttpResponse;
+import org.apache.hc.core5.http.Header;
+import org.apache.hc.core5.http.HttpResponse;
+import org.apache.hc.core5.http.NameValuePair;
+import org.apache.hc.core5.http.ParseException;
+import org.apache.hc.core5.http.io.entity.EntityUtils;
+import org.apache.hc.core5.http.message.BasicHeader;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -23,17 +24,17 @@ import java.util.stream.Collectors;
 @UtilityClass
 public final class WellRestedUtil {
 
-    public static WellRestedResponse buildWellRestedResponse(HttpResponse httpResponse, JsonMapper jsonMapper) {
+    public static WellRestedResponse buildWellRestedResponse(ClassicHttpResponse httpResponse, JsonMapper jsonMapper) {
         return buildWellRestedResponse(httpResponse, StringUtils.EMPTY, jsonMapper);
     }
 
-    public static WellRestedResponse buildWellRestedResponse(HttpResponse httpResponse, String url, JsonMapper jsonMapper) {
+    public static WellRestedResponse buildWellRestedResponse(ClassicHttpResponse httpResponse, String url, JsonMapper jsonMapper) {
         try {
             WellRestedResponse wellRestedResponse = new WellRestedResponse(jsonMapper);
             wellRestedResponse.setCurrentURI(url);
 
-            if (httpResponse.getAllHeaders() != null) {
-                wellRestedResponse.setResponseHeaders(createHeaderMap(httpResponse.getAllHeaders()));
+            if (httpResponse.getHeaders() != null) {
+                wellRestedResponse.setResponseHeaders(createHeaderMap(httpResponse.getHeaders()));
             }
 
             if (httpResponse.getEntity() != null) {
@@ -42,7 +43,7 @@ public final class WellRestedUtil {
                                          : StringUtils.EMPTY;
                 wellRestedResponse.setServerResponse(responseContent);
             }
-            int statusCode = httpResponse.getStatusLine().getStatusCode();
+            int statusCode = httpResponse.getCode();
             wellRestedResponse.setStatusCode(statusCode);
             return wellRestedResponse;
         } catch (IOException | ParseException ex) {
@@ -78,7 +79,7 @@ public final class WellRestedUtil {
     }
 
     public static void fillStatusCodeForResponse(WellRestedResponse response, HttpResponse httpResponse) {
-        int responseStatusCode = httpResponse.getStatusLine().getStatusCode();
+        int responseStatusCode = httpResponse.getCode();
         if (responseStatusCode != 200) {
             log.warn("Server problem detected, response code: " + responseStatusCode);
         }

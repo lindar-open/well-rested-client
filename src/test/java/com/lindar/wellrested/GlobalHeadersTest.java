@@ -1,48 +1,42 @@
 package com.lindar.wellrested;
 
-import com.github.tomakehurst.wiremock.junit.WireMockRule;
 import com.lindar.wellrested.vo.WellRestedResponse;
-import org.apache.http.Header;
-import org.apache.http.entity.ContentType;
-import org.apache.http.message.BasicHeader;
-import org.junit.*;
+import org.apache.hc.core5.http.ContentType;
+import org.apache.hc.core5.http.Header;
+import org.apache.hc.core5.http.message.BasicHeader;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 
-import java.util.*;
-import java.util.concurrent.TimeUnit;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
-import static com.github.tomakehurst.wiremock.client.WireMock.*;
 import static com.github.tomakehurst.wiremock.client.WireMock.aResponse;
-import static org.junit.Assert.assertEquals;
+import static com.github.tomakehurst.wiremock.client.WireMock.get;
+import static com.github.tomakehurst.wiremock.client.WireMock.matching;
+import static com.github.tomakehurst.wiremock.client.WireMock.stubFor;
+import static com.github.tomakehurst.wiremock.client.WireMock.urlMatching;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
+@ExtendWith(TestEnvironment.class)
 public class GlobalHeadersTest {
+    private final WellRestedRequestBuilder builder = new WellRestedRequestBuilder();
 
-    private WellRestedRequestBuilder builder = new WellRestedRequestBuilder();
-
-    @ClassRule
-    public static WireMockRule wireMockRule = new WireMockRule(8089);
-
-    @Before
-    public void setupTests(){
-        builder = new WellRestedRequestBuilder();
+    @BeforeAll
+    public static void setupTests() {
         stubFor(get(urlMatching("/tests/first")).atPriority(0).willReturn(aResponse().withStatus(200).withBody("First Test: Success")));
         stubFor(get(urlMatching("/tests/.*")).atPriority(10).willReturn(aResponse().withStatus(404).withBody("Nothing to GET here.")));
         stubFor(get(urlMatching("/tests/second")).atPriority(0).withHeader("Accept", matching("application/json")).willReturn(aResponse().withStatus(200).withBody("Second Test: Header found")));
         stubFor(get(urlMatching("/tests/second")).atPriority(5).willReturn(aResponse().withStatus(400).withBody("Second Test: Header not found")));
         stubFor(get(urlMatching("/tests/third")).atPriority(0).withHeader("Content-Type", matching("application/json")).willReturn(aResponse().withStatus(200).withBody("Third Test: Header found")));
-        stubFor(get(urlMatching("/tests/third")).atPriority(0).withHeader("Content-Type", matching(ContentType.APPLICATION_JSON.toString())).willReturn(aResponse().withStatus(200).withBody("Third Test: Header found")));
-    }
-
-    @BeforeClass
-    public static void waitToStart(){
-        try {
-            TimeUnit.SECONDS.sleep(1);
-        } catch (InterruptedException e) {
-            e.printStackTrace();
-        }
+        stubFor(get(urlMatching("/tests/third")).atPriority(0).withHeader("Content-Type", matching(ContentType.APPLICATION_JSON.toString()))
+                                                .willReturn(aResponse().withStatus(200).withBody("Third Test: Header found")));
     }
 
     @Test
-    public void testFirstGlobalHeaderSettingInBuilderMethod(){
+    public void testFirstGlobalHeaderSettingInBuilderMethod() {
         builder.url("http://localhost:8089/tests/second");
 
         BasicHeader header1 = new BasicHeader("Accept", "application/json");
@@ -61,10 +55,10 @@ public class GlobalHeadersTest {
     }
 
     @Test
-    public void testSecondGlobalHeaderSettingInBuilderMethod(){
+    public void testSecondGlobalHeaderSettingInBuilderMethod() {
         builder.url("http://localhost:8089/tests/second");
 
-        Map<String,String> headers = new HashMap<String, String>();
+        Map<String, String> headers = new HashMap<String, String>();
         headers.put("Accept", "application/json");
 
         builder.globalHeaders(headers);
@@ -79,7 +73,7 @@ public class GlobalHeadersTest {
     }
 
     @Test
-    public void testThirdGlobalHeaderSettingInBuilderMethod(){
+    public void testThirdGlobalHeaderSettingInBuilderMethod() {
         builder.url("http://localhost:8089/tests/second");
 
         builder.addGlobalHeader("Accept", "application/json");
@@ -94,7 +88,7 @@ public class GlobalHeadersTest {
     }
 
     @Test
-    public void testFourthGlobalHeaderSettingInBuilderMethod(){
+    public void testFourthGlobalHeaderSettingInBuilderMethod() {
         builder.url("http://localhost:8089/tests/third");
 
         builder.addContentTypeGlobalHeader("application/json");
@@ -109,7 +103,7 @@ public class GlobalHeadersTest {
     }
 
     @Test
-    public void testFifthGlobalHeaderSettingInBuilderMethod(){
+    public void testFifthGlobalHeaderSettingInBuilderMethod() {
         builder.url("http://localhost:8089/tests/third");
 
         builder.addJsonContentTypeGlobalHeader();
@@ -124,7 +118,7 @@ public class GlobalHeadersTest {
     }
 
     @Test
-    public void testListHeaderSettingInRequest(){
+    public void testListHeaderSettingInRequest() {
         builder.url("http://localhost:8089/tests/second");
 
         BasicHeader header1 = new BasicHeader("Accept", "application/json");
@@ -143,7 +137,7 @@ public class GlobalHeadersTest {
     }
 
     @Test
-    public void testMapHeaderSettingInRequest(){
+    public void testMapHeaderSettingInRequest() {
         builder.url("http://localhost:8089/tests/second");
 
         Map<String, String> headers = new HashMap<>();
@@ -161,7 +155,7 @@ public class GlobalHeadersTest {
     }
 
     @Test
-    public void testSingleHeaderSettingInRequest(){
+    public void testSingleHeaderSettingInRequest() {
         builder.url("http://localhost:8089/tests/second");
 
         WellRestedRequest request = builder.build().addGlobalHeader("Accept", "application/json");
@@ -176,7 +170,7 @@ public class GlobalHeadersTest {
     }
 
     @Test
-    public void testClearHeadersInRequest(){
+    public void testClearHeadersInRequest() {
         builder.url("http://localhost:8089/tests/second");
 
         WellRestedRequest request = builder.build().addGlobalHeader("Accept", "application/json");

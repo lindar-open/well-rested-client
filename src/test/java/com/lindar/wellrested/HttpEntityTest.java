@@ -1,13 +1,11 @@
 package com.lindar.wellrested;
 
-import com.github.tomakehurst.wiremock.junit.WireMockRule;
 import com.lindar.wellrested.vo.WellRestedResponse;
-import org.apache.http.NameValuePair;
-import org.apache.http.entity.ContentType;
-import org.junit.Before;
-import org.junit.BeforeClass;
-import org.junit.ClassRule;
-import org.junit.Test;
+import org.apache.hc.core5.http.ContentType;
+import org.apache.hc.core5.http.NameValuePair;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 
 import java.io.File;
 import java.nio.charset.Charset;
@@ -15,22 +13,22 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.concurrent.TimeUnit;
 
-import static com.github.tomakehurst.wiremock.client.WireMock.*;
-import static org.junit.Assert.assertEquals;
+import static com.github.tomakehurst.wiremock.client.WireMock.aResponse;
+import static com.github.tomakehurst.wiremock.client.WireMock.containing;
+import static com.github.tomakehurst.wiremock.client.WireMock.equalToXml;
+import static com.github.tomakehurst.wiremock.client.WireMock.post;
+import static com.github.tomakehurst.wiremock.client.WireMock.postRequestedFor;
+import static com.github.tomakehurst.wiremock.client.WireMock.stubFor;
+import static com.github.tomakehurst.wiremock.client.WireMock.urlMatching;
+import static com.github.tomakehurst.wiremock.client.WireMock.verify;
 
+@ExtendWith(TestEnvironment.class)
 public class HttpEntityTest {
+    private final WellRestedRequestBuilder builder = new WellRestedRequestBuilder();
 
-    WellRestedRequestBuilder builder;
-
-    @ClassRule
-    public static WireMockRule wireMockRule = new WireMockRule(8089);
-
-    @Before
-    public void setupConnections(){
-        builder = new WellRestedRequestBuilder();
-
+    @BeforeAll
+    public static void setupConnections(){
         stubFor(post("/entityTest/xml")
                 .withRequestBody(equalToXml("<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\"?>\n" +
                         "<XmlEntry id=\"1\">\n" +
@@ -40,15 +38,6 @@ public class HttpEntityTest {
                         "</XmlEntry>"))
                 .willReturn(aResponse()
                         .withStatus(201).withBody("{ \"Test\" : \"Successful\" }")));
-    }
-
-    @BeforeClass
-    public static void waitToStart(){
-        try {
-            TimeUnit.SECONDS.sleep(1);
-        } catch (InterruptedException e) {
-            e.printStackTrace();
-        }
     }
 
     @Test

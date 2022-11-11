@@ -1,4 +1,4 @@
-package com.lindar.wellrested;
+package com.lindar.wellrested.model;
 
 import lombok.Setter;
 

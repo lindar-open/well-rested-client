@@ -1,16 +1,14 @@
 package com.lindar.wellrested;
 
-import com.github.tomakehurst.wiremock.junit.WireMockRule;
+import com.lindar.wellrested.model.PHEntry;
 import com.lindar.wellrested.vo.WellRestedResponse;
-import org.apache.http.Header;
-import org.apache.http.message.BasicHeader;
-import org.junit.BeforeClass;
-import org.junit.ClassRule;
-import org.junit.Test;
+import org.apache.hc.core5.http.Header;
+import org.apache.hc.core5.http.message.BasicHeader;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.concurrent.TimeUnit;
 
 import static com.github.tomakehurst.wiremock.client.WireMock.aResponse;
 import static com.github.tomakehurst.wiremock.client.WireMock.containing;
@@ -21,20 +19,12 @@ import static com.github.tomakehurst.wiremock.client.WireMock.stubFor;
 import static com.github.tomakehurst.wiremock.client.WireMock.urlEqualTo;
 import static com.github.tomakehurst.wiremock.client.WireMock.urlMatching;
 import static com.github.tomakehurst.wiremock.client.WireMock.verify;
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
+@ExtendWith(TestEnvironment.class)
 public class PatchRequestTest {
-
     private static final int    PORT = 8089;
     private static final String HOST = "http://localhost:" + PORT;
-
-    @ClassRule
-    public static final WireMockRule wireMockRule = new WireMockRule(PORT);
-
-    @BeforeClass
-    public static void waitToStart() throws InterruptedException {
-        TimeUnit.SECONDS.sleep(1);
-    }
 
     private final WellRestedRequestBuilder builder = new WellRestedRequestBuilder();
 

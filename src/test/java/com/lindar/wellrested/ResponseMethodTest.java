@@ -1,37 +1,20 @@
 package com.lindar.wellrested;
 
-import com.github.tomakehurst.wiremock.junit.WireMockRule;
 import com.google.gson.Gson;
+import com.lindar.wellrested.model.PHEntry;
 import com.lindar.wellrested.vo.WellRestedResponse;
-import org.junit.Before;
-import org.junit.BeforeClass;
-import org.junit.ClassRule;
-import org.junit.Test;
-import java.util.concurrent.TimeUnit;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 
-import static com.github.tomakehurst.wiremock.client.WireMock.*;
-import static org.junit.Assert.assertTrue;
+import static com.github.tomakehurst.wiremock.client.WireMock.aResponse;
+import static com.github.tomakehurst.wiremock.client.WireMock.get;
+import static com.github.tomakehurst.wiremock.client.WireMock.stubFor;
+import static com.github.tomakehurst.wiremock.client.WireMock.urlMatching;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
+@ExtendWith(TestEnvironment.class)
 public class ResponseMethodTest {
-
-    private WellRestedRequestBuilder builder = new WellRestedRequestBuilder();
-
-    @ClassRule
-    public static WireMockRule wireMockRule = new WireMockRule(8089);
-
-    @Before
-    public void setupTests(){
-        builder = new WellRestedRequestBuilder();
-    }
-
-    @BeforeClass
-    public static void waitToStart(){
-        try {
-            TimeUnit.SECONDS.sleep(1);
-        } catch (InterruptedException e) {
-            e.printStackTrace();
-        }
-    }
+    private final WellRestedRequestBuilder builder = new WellRestedRequestBuilder();
 
     @Test
     public void testClassCastMethod(){

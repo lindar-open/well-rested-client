@@ -1,7 +1,7 @@
 package com.lindar.wellrested;
 
 import com.lindar.wellrested.util.WellRestedUtil;
-import org.apache.http.Header;
+import org.apache.hc.core5.http.Header;
 
 import java.util.List;
 import java.util.Map;
