@@ -29,7 +29,7 @@ import java.util.concurrent.TimeUnit;
 
 @Slf4j
 public class WellRestedRequest {
-    public static Timeout DEFAULT_TIMEOUT = Timeout.of(10, TimeUnit.SECONDS);
+    public static int DEFAULT_TIMEOUT = 10000;
 
     private static final JsonMapper          DEFAULT_JSON_MAPPER = new GsonJsonMapper.Builder().build(); // use the builder so some defaults are set
     private static final CloseableHttpClient INTERNAL_STATELESS_HTTP_CLIENT;
@@ -359,13 +359,13 @@ public class WellRestedRequest {
         if (responseTimeout != null) {
             request.responseTimeout(responseTimeout);
         } else {
-            request.responseTimeout(DEFAULT_TIMEOUT);
+            request.responseTimeout(Timeout.of(DEFAULT_TIMEOUT, TimeUnit.MILLISECONDS));
         }
 
         if (connectionTimeout != null) {
             request.connectTimeout(connectionTimeout);
         } else {
-            request.connectTimeout(DEFAULT_TIMEOUT);
+            request.connectTimeout(Timeout.of(DEFAULT_TIMEOUT, TimeUnit.MILLISECONDS));
         }
     }
 }
