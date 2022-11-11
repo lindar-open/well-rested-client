@@ -1,19 +1,18 @@
 package com.lindar.wellrested;
 
-import com.github.tomakehurst.wiremock.junit.WireMockRule;
+import com.lindar.wellrested.gson.TestGsonCustomiser;
 import com.lindar.wellrested.json.GsonJsonMapper;
+import com.lindar.wellrested.model.PHEntry;
 import com.lindar.wellrested.util.BasicExclusionStrategy;
 import com.lindar.wellrested.vo.WellRestedResponse;
-import org.junit.Before;
-import org.junit.BeforeClass;
-import org.junit.ClassRule;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
-import java.util.concurrent.TimeUnit;
 
 import static com.github.tomakehurst.wiremock.client.WireMock.aResponse;
 import static com.github.tomakehurst.wiremock.client.WireMock.matching;
@@ -22,33 +21,19 @@ import static com.github.tomakehurst.wiremock.client.WireMock.postRequestedFor;
 import static com.github.tomakehurst.wiremock.client.WireMock.stubFor;
 import static com.github.tomakehurst.wiremock.client.WireMock.urlMatching;
 import static com.github.tomakehurst.wiremock.client.WireMock.verify;
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
+@ExtendWith(TestEnvironment.class)
 public class ExclusionTest {
+    private final WellRestedRequestBuilder builder = new WellRestedRequestBuilder();
 
-    private WellRestedRequestBuilder builder = new WellRestedRequestBuilder();
-
-    @ClassRule
-    public static WireMockRule wireMockRule = new WireMockRule(8089);
-
-    @Before
-    public void setupTests(){
-        builder = new WellRestedRequestBuilder();
-
+    @BeforeAll
+    public static void setupTests(){
         stubFor(post(urlMatching("/tests/serializer")).atPriority(0).withRequestBody(matching("\\{\"userId\":1,\"id\":1,\"body\":\"Post Body\"\\}")).willReturn(aResponse().withStatus(201).withBody("Fourth Test: Correct Excluded Body found")));
         stubFor(post(urlMatching("/tests/serializer")).atPriority(0).withRequestBody(matching("\\{\"userId\":1,\"id\":1,\"title\":\"Post Title\",\"body\":\"Post Body\"\\}")).willReturn(aResponse().withStatus(202).withBody("Fourth Test: Correct Non-Excluded Body found")));
         stubFor(post(urlMatching("/tests/serializer")).atPriority(0).withRequestBody(matching("\\{\"title\":\"Post Title\",\"body\":\"Post Body\"\\}")).willReturn(aResponse().withStatus(203).withBody("Fourth Test: Correct Excluded Classes Body found")));
         stubFor(post(urlMatching("/tests/serializer")).atPriority(5).willReturn(aResponse().withStatus(500).withBody("Test Failed: Incorrect Body")));
         stubFor(post(urlMatching("/tests/.*")).atPriority(10).willReturn(aResponse().withStatus(404).withBody("Post failed: Incorrect url")));
-    }
-
-    @BeforeClass
-    public static void waitToStart(){
-        try {
-            TimeUnit.SECONDS.sleep(1);
-        } catch (InterruptedException e) {
-            e.printStackTrace();
-        }
     }
 
     @Test
@@ -76,7 +61,6 @@ public class ExclusionTest {
 
     @Test
     public void testNullFieldExclusion(){
-        builder = new WellRestedRequestBuilder();
         builder.jsonMapper(new GsonJsonMapper.Builder()
                                    .excludeFields(new ArrayList<>())
                                    .build());
@@ -104,8 +88,6 @@ public class ExclusionTest {
 
     @Test
     public void testClassExclusion(){
-        builder = new WellRestedRequestBuilder();
-
         PHEntry postData2 = new PHEntry();
         postData2.setUserId(1);
         postData2.setTitle("Post Title");
@@ -129,8 +111,6 @@ public class ExclusionTest {
 
     @Test
     public void testNullClassExclusion(){
-        builder = new WellRestedRequestBuilder();
-
         PHEntry postData2 = new PHEntry();
         postData2.setUserId(1);
         postData2.setTitle("Post Title");
@@ -154,8 +134,6 @@ public class ExclusionTest {
 
     @Test
     public void testClassExclusionStrategy(){
-        builder = new WellRestedRequestBuilder();
-
         PHEntry postData2 = new PHEntry();
         postData2.setUserId(1);
         postData2.setTitle("Post Title");

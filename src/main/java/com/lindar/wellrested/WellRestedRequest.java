@@ -5,17 +5,19 @@ import com.lindar.wellrested.json.JsonMapper;
 import com.lindar.wellrested.util.WellRestedUtil;
 import com.lindar.wellrested.vo.WellRestedResponse;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.http.Header;
-import org.apache.http.HttpEntity;
-import org.apache.http.HttpHost;
-import org.apache.http.HttpResponse;
-import org.apache.http.auth.Credentials;
-import org.apache.http.client.HttpClient;
-import org.apache.http.client.fluent.Executor;
-import org.apache.http.client.fluent.Request;
-import org.apache.http.conn.ConnectTimeoutException;
-import org.apache.http.impl.client.HttpClientBuilder;
-import org.apache.http.message.BasicHeader;
+import org.apache.hc.client5.http.ConnectTimeoutException;
+import org.apache.hc.client5.http.auth.Credentials;
+import org.apache.hc.client5.http.fluent.Executor;
+import org.apache.hc.client5.http.fluent.Request;
+import org.apache.hc.client5.http.impl.classic.CloseableHttpClient;
+import org.apache.hc.client5.http.impl.classic.HttpClientBuilder;
+import org.apache.hc.client5.http.impl.io.PoolingHttpClientConnectionManager;
+import org.apache.hc.core5.http.ClassicHttpResponse;
+import org.apache.hc.core5.http.Header;
+import org.apache.hc.core5.http.HttpEntity;
+import org.apache.hc.core5.http.HttpHost;
+import org.apache.hc.core5.http.message.BasicHeader;
+import org.apache.hc.core5.util.Timeout;
 
 import java.io.IOException;
 import java.net.SocketTimeoutException;
@@ -23,44 +25,47 @@ import java.net.URI;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.TimeUnit;
 
 @Slf4j
 public class WellRestedRequest {
     public static int DEFAULT_TIMEOUT = 10000;
 
-    private static final JsonMapper DEFAULT_JSON_MAPPER = new GsonJsonMapper.Builder().build(); // use the builder so some defaults are set
-    private static final HttpClient INTERNAL_STATELESS_HTTP_CLIENT;
+    private static final JsonMapper          DEFAULT_JSON_MAPPER = new GsonJsonMapper.Builder().build(); // use the builder so some defaults are set
+    private static final CloseableHttpClient INTERNAL_STATELESS_HTTP_CLIENT;
 
-    private final URI          uri;
-    private final Credentials  credentials;
-    private final HttpHost     proxy;
-    private       List<Header> globalHeaders;
-    private final boolean      disableCookiesForAuthRequests;
-    private final Integer      connectionTimeout;
-    private final Integer      socketTimeout;
-    private final JsonMapper   jsonMapper;
-    private       HttpClient   client;
+    private final URI                 uri;
+    private final Credentials         credentials;
+    private final HttpHost            proxy;
+    private       List<Header>        globalHeaders;
+    private final boolean             disableCookiesForAuthRequests;
+    private final Timeout             connectionTimeout;
+    private final Timeout             responseTimeout;
+    private final JsonMapper          jsonMapper;
+    private final CloseableHttpClient client;
 
     static {
+        PoolingHttpClientConnectionManager connManager = new PoolingHttpClientConnectionManager();
+        connManager.setMaxTotal(200);
+        connManager.setDefaultMaxPerRoute(100);
+
         INTERNAL_STATELESS_HTTP_CLIENT = HttpClientBuilder
                 .create()
                 .disableCookieManagement()
-                .setMaxConnPerRoute(100)
-                .setMaxConnTotal(200)
+                .setConnectionManager(connManager)
                 .build();
-        //.disableAuthCaching()
     }
 
     WellRestedRequest(URI uri, Credentials credentials, HttpHost proxy, List<Header> globalHeaders,
-                      boolean disableCookiesForAuthRequests, Integer connectionTimeout, Integer socketTimeout,
-                      JsonMapper jsonMapper, HttpClient client) {
+                      boolean disableCookiesForAuthRequests, Integer connectionTimeout, Integer responseTimeout,
+                      JsonMapper jsonMapper, CloseableHttpClient client) {
         this.uri = uri;
         this.credentials = credentials;
         this.proxy = proxy;
         this.globalHeaders = globalHeaders;
         this.disableCookiesForAuthRequests = disableCookiesForAuthRequests;
-        this.connectionTimeout = connectionTimeout;
-        this.socketTimeout = socketTimeout;
+        this.connectionTimeout = connectionTimeout != null ? Timeout.of(connectionTimeout, TimeUnit.MILLISECONDS) : null;
+        this.responseTimeout = responseTimeout != null ? Timeout.of(responseTimeout, TimeUnit.MILLISECONDS) : null;
 
         if (jsonMapper == null) {
             this.jsonMapper = DEFAULT_JSON_MAPPER;
@@ -137,7 +142,7 @@ public class WellRestedRequest {
 
         @Override
         public WellRestedResponse submit() {
-            return submitRequest(Request.Get(uri), null, headers);
+            return submitRequest(Request.get(uri), null, headers);
         }
     }
 
@@ -176,7 +181,7 @@ public class WellRestedRequest {
 
         @Override
         public WellRestedResponse submit() {
-            return submitRequest(Request.Post(uri), httpEntity, headers);
+            return submitRequest(Request.post(uri), httpEntity, headers);
         }
     }
 
@@ -214,7 +219,7 @@ public class WellRestedRequest {
 
         @Override
         public WellRestedResponse submit() {
-            return submitRequest(Request.Put(uri), httpEntity, headers);
+            return submitRequest(Request.put(uri), httpEntity, headers);
         }
     }
 
@@ -253,7 +258,7 @@ public class WellRestedRequest {
 
         @Override
         public WellRestedResponse submit() {
-            return submitRequest(Request.Delete(uri), httpEntity, headers);
+            return submitRequest(Request.delete(uri), httpEntity, headers);
         }
     }
 
@@ -291,7 +296,7 @@ public class WellRestedRequest {
 
         @Override
         public WellRestedResponse submit() {
-            return submitRequest(Request.Patch(uri), httpEntity, headers);
+            return submitRequest(Request.patch(uri), httpEntity, headers);
         }
     }
 
@@ -312,7 +317,7 @@ public class WellRestedRequest {
                 request.viaProxy(proxy);
             }
             setRequestTimeout(request);
-            HttpResponse httpResponse;
+            ClassicHttpResponse httpResponse;
 
             Executor executor = getExecutor();
             if (credentials != null) {
@@ -320,15 +325,11 @@ public class WellRestedRequest {
                     executor.clearCookies().clearAuth();
                 }
 
-                if (uri.getPort() > 0) {
-                    executor.authPreemptive(uri.getHost() + ":" + uri.getPort());
-                } else {
-                    executor.authPreemptive(uri.getHost());
-                }
-
-                executor.auth(credentials);
+                String host = uri.getPort() > 0 ? uri.getHost() + ":" + uri.getPort() : uri.getHost();
+                executor.auth(host, credentials);
+                executor.authPreemptive(host);
             }
-            httpResponse = executor.execute(request).returnResponse();
+            httpResponse = (ClassicHttpResponse) executor.execute(request).returnResponse();
             return WellRestedUtil.buildWellRestedResponse(httpResponse, uri.toString(), jsonMapper);
         } catch (ConnectTimeoutException cte) {
             log.error("Connection timeout for request: {}", request.toString(), cte);
@@ -355,16 +356,16 @@ public class WellRestedRequest {
     }
 
     private void setRequestTimeout(Request request) {
-        if (socketTimeout != null) {
-            request.socketTimeout(socketTimeout);
+        if (responseTimeout != null) {
+            request.responseTimeout(responseTimeout);
         } else {
-            request.socketTimeout(DEFAULT_TIMEOUT);
+            request.responseTimeout(Timeout.of(DEFAULT_TIMEOUT, TimeUnit.MILLISECONDS));
         }
 
         if (connectionTimeout != null) {
             request.connectTimeout(connectionTimeout);
         } else {
-            request.connectTimeout(DEFAULT_TIMEOUT);
+            request.connectTimeout(Timeout.of(DEFAULT_TIMEOUT, TimeUnit.MILLISECONDS));
         }
     }
 }
