@@ -325,7 +325,7 @@ public class WellRestedRequest {
                     executor.clearCookies().clearAuth();
                 }
 
-                String host = uri.getPort() > 0 ? uri.getHost() + ":" + uri.getPort() : uri.getHost();
+                HttpHost host = new HttpHost(uri.getScheme(), uri.getHost(), uri.getPort());
                 executor.auth(host, credentials);
                 executor.authPreemptive(host);
             }
