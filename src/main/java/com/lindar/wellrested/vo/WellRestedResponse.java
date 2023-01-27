@@ -30,6 +30,7 @@ public class WellRestedResponse implements Serializable {
     private @Getter @Setter Map<String, String> responseHeaders;
     private @Getter @Setter boolean             socketTimeout;
     private @Getter @Setter boolean             connectionTimeout;
+    private @Getter @Setter boolean             connectionRequestTimeout;
     private final           JsonMapper          jsonMapper;
 
     public WellRestedResponse(JsonMapper jsonMapper) {

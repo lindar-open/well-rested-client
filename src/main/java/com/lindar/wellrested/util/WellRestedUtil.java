@@ -61,20 +61,25 @@ public final class WellRestedUtil {
     }
 
     public static WellRestedResponse buildSocketTimeoutWellRestedResponse(String url, JsonMapper jsonMapper) {
-        return buildTimeoutWellRestedResponse(url, true, false, jsonMapper);
+        return buildTimeoutWellRestedResponse(url, true, false, false, jsonMapper);
     }
 
     public static WellRestedResponse buildConnectionTimeoutWellRestedResponse(String url, JsonMapper jsonMapper) {
-        return buildTimeoutWellRestedResponse(url, false, true, jsonMapper);
+        return buildTimeoutWellRestedResponse(url, false, true, false, jsonMapper);
     }
 
-    private static WellRestedResponse buildTimeoutWellRestedResponse(String url, boolean socketTimeout, boolean connectionTimeout, JsonMapper jsonMapper) {
+    public static WellRestedResponse buildConnectionRequestTimeoutWellRestedResponse(String url, JsonMapper jsonMapper) {
+        return buildTimeoutWellRestedResponse(url, false, false, true, jsonMapper);
+    }
+
+    private static WellRestedResponse buildTimeoutWellRestedResponse(String url, boolean socketTimeout, boolean connectionTimeout, boolean connectionRequestTimeout, JsonMapper jsonMapper) {
         WellRestedResponse wellRestedResponse = new WellRestedResponse(jsonMapper);
         wellRestedResponse.setCurrentURI(url);
         wellRestedResponse.setServerResponse(StringUtils.EMPTY);
         wellRestedResponse.setStatusCode(-1);
         wellRestedResponse.setSocketTimeout(socketTimeout);
         wellRestedResponse.setConnectionTimeout(connectionTimeout);
+        wellRestedResponse.setConnectionRequestTimeout(connectionRequestTimeout);
         return wellRestedResponse;
     }
 

@@ -13,6 +13,7 @@ import org.apache.hc.client5.http.impl.classic.CloseableHttpClient;
 import org.apache.hc.client5.http.impl.classic.HttpClientBuilder;
 import org.apache.hc.client5.http.impl.io.PoolingHttpClientConnectionManager;
 import org.apache.hc.core5.http.ClassicHttpResponse;
+import org.apache.hc.core5.http.ConnectionRequestTimeoutException;
 import org.apache.hc.core5.http.Header;
 import org.apache.hc.core5.http.HttpEntity;
 import org.apache.hc.core5.http.HttpHost;
@@ -334,6 +335,9 @@ public class WellRestedRequest {
         } catch (ConnectTimeoutException cte) {
             log.error("Connection timeout for request: {}", request.toString(), cte);
             return WellRestedUtil.buildConnectionTimeoutWellRestedResponse(uri.toString(), jsonMapper);
+        } catch (ConnectionRequestTimeoutException ex) {
+            log.error("Connection Request timeout for request: {}", request.toString(), ex);
+            return WellRestedUtil.buildConnectionRequestTimeoutWellRestedResponse(uri.toString(), jsonMapper);
         } catch (SocketTimeoutException ste) {
             log.error("Socket timeout for request: {}", request.toString(), ste);
             return WellRestedUtil.buildSocketTimeoutWellRestedResponse(uri.toString(), jsonMapper);
